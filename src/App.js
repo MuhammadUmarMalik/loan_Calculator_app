@@ -7,7 +7,7 @@ function App() {
   //state management
 
   const [loanAmount, setLoanAmount] = useState("");
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [totalAmount, setTotalAmount] = useState();
   const [numMonths, setNumMonths] = useState("");
   const [annualInterestRate, setAnnualInterestRate] = useState("");
   const [monthlyPayment, setMonthlyPayment] = useState("");
@@ -20,6 +20,7 @@ function App() {
   const [endMonth, setEndMonth] = useState("");
   const [endYear, setEndYear] = useState("");
   const [amortizationSchedule, setAmortizationSchedule] = useState([]);
+  const [extraPrincipal, setExtraPrincipal] = useState("");
 
   const months = [
     "January",
@@ -56,26 +57,33 @@ function App() {
       setEndYear(year);
     }
   };
+  useEffect(() => {
+    // This code will run after totalAmount state is updated
+    console.log("Total Loan Payment updated:", totalAmount);
+
+    // Display the total payment amount on the first request
+    if (totalAmount > 0) {
+      <p>You'll pay a total of $${totalAmount}</p>;
+    }
+  }, [totalAmount]);
+
+  const handleExtraPrincipalChange = (e) => {
+    setExtraPrincipal(e.target.value);
+  };
 
   const handleMonthlyPayment = () => {
     const monthlyInterestRate = annualInterestRate / 100 / 12;
-    console.log("monthly Interests ---------------->", monthlyInterestRate);
+    // console.log("monthly Interests ---------------->", monthlyInterestRate);
     const numberOfPayments = numMonths;
-    console.log("number of Payment ---->", numberOfPayments);
+    // console.log("number of Payment ---->", numberOfPayments);
     const numerator =
       monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments);
-    console.log("numerator", numerator);
+    // console.log("numerator", numerator);
     const denominator = Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1;
-    console.log("denominator", denominator);
+    // console.log("denominator", denominator);
     const monthlyPaymentValue = loanAmount * (numerator / denominator);
-    console.log("monthlypayment----->", monthlyPaymentValue);
+    // console.log("monthlypayment----->", monthlyPaymentValue);
     setMonthlyPayment(monthlyPaymentValue.toFixed(2));
-
-    //total loan amount
-    const totalAmount = monthlyPayment * numberOfPayments;
-    console.log("total loan payement", totalAmount);
-    setTotalAmount(totalAmount.toFixed(2));
-    // console.log("set total loan payement", setTotalAmount);
   };
   const calculateMonthlyPayment = () => {
     const monthlyInterestRate = annualInterestRate / 100 / 12;
@@ -85,19 +93,6 @@ function App() {
     const denominator = Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1;
     return loanAmount * (numerator / denominator);
   };
-
-  // const calculateTotalLoan = ({ monthlyPayment, numberOfPayments }) => {
-  //   return monthlyPayment * numberOfPayments;
-  // };
-
-  useEffect(() => {
-    // This code will run after totalAmount state is updated
-    console.log("Total Loan Payment updated:", totalAmount);
-  }, [totalAmount]);
-  function getCurrentMonth() {
-    return new Date().getMonth() + 1; // Adding 1 because months are zero-indexed
-  }
-
   // Function to get the current year
   function getCurrentYear() {
     return new Date().getFullYear();
@@ -115,6 +110,11 @@ function App() {
     const monthlyPayment = calculateMonthlyPayment();
     setMonthlyPayment(monthlyPayment.toFixed(2));
 
+    const totalAmount = (monthlyPayment * numberOfPayments).toFixed(2);
+    // console.log("total loan payement", totalAmount);
+    setTotalAmount(totalAmount);
+
+    const extraPrincipalValue = parseFloat(extraPrincipal) || 0;
     const schedule = [];
     let remainingBalance = loanAmount;
     let count;
@@ -123,12 +123,59 @@ function App() {
       const interestPaid = remainingBalance * monthlyInterestRate;
       const principalPaid = monthlyPaymentValue - interestPaid;
       remainingBalance -= principalPaid;
+      if (remainingBalance <= 0) {
+        remainingBalance = 0; // Set remaining balance to zero if it becomes negative
+      }
       count = i;
+      const year = years[Math.floor((startMonth - 1 + i) / 12) % years.length];
       schedule.push({
         count,
         month: months[(startMonth - 1 + i) % 12],
-
+        year,
         payment: monthlyPayment.toFixed(2),
+        principalPaid: principalPaid.toFixed(2),
+        interestPaid: interestPaid.toFixed(2),
+        remainingBalance: remainingBalance.toFixed(2),
+      });
+    }
+
+    setAmortizationSchedule(schedule);
+  };
+
+  //extra principal schedule
+  // generate Amortization Schedule
+  const generateExtraAmortizationSchedule = () => {
+    const monthlyInterestRate = annualInterestRate / 100 / 12;
+    const numberOfPayments = numMonths;
+    const numerator =
+      monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments);
+    const denominator = Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1;
+    const extraPrincipalValue = parseFloat(extraPrincipal) || 0;
+    const monthlyPaymentValue =
+      loanAmount * (numerator / denominator) + extraPrincipalValue;
+
+    const totalAmount = (monthlyPaymentValue * numberOfPayments).toFixed(2);
+    setTotalAmount(totalAmount);
+
+    const schedule = [];
+    let remainingBalance = loanAmount; // Include extra principal in the initial balance
+    console.log("remainningBalance", remainingBalance);
+    let count;
+
+    for (let i = 1; i <= numMonths; i++) {
+      const interestPaid = remainingBalance * monthlyInterestRate;
+      const principalPaid = monthlyPaymentValue - interestPaid;
+      remainingBalance -= principalPaid;
+      if (remainingBalance <= 0) {
+        remainingBalance = 0; // Set remaining balance to zero if it becomes negative
+      }
+      count = i;
+      const year = years[Math.floor((startMonth - 1 + i) / 12) % years.length];
+      schedule.push({
+        count,
+        month: months[(startMonth - 1 + i) % 12],
+        year,
+        payment: monthlyPaymentValue.toFixed(2),
         principalPaid: principalPaid.toFixed(2),
         interestPaid: interestPaid.toFixed(2),
         remainingBalance: remainingBalance.toFixed(2),
@@ -139,7 +186,7 @@ function App() {
   };
   return (
     <div className="w-100 d-flex flex-column align-items-center justify-content-center ">
-      <div className="container w-75 align-items-center justify-content-center text-center p-2 bg-light">
+      <div className="w-100 align-items-center justify-content-center text-center p-2 bg-warning">
         <h1>
           Monthly Payment Loan Calculator <br />
           <span>w</span>/Extra Payments
@@ -212,24 +259,25 @@ function App() {
             </button>
           </div>
           <hr />
-          {loanAmount !== null && <p>You'll pay a total of ${totalAmount}</p>}
-          {/* <p>You'll pay a total of ${setTotalAmount}</p> */}
+
+          {/* <p>You'll pay a total of ${totalAmount}</p> */}
         </div>
+        {/* {totalAmount !== 0 && <p>You'll pay a total of ${totalAmount}</p>} */}
       </div>
-      <br />
-      <div className="w-40 bg-success">
-        <div className="container w-53 align-items-center justify-content-center text-center p-2 bg-light">
-          <div className="d-flex w-100 align-item-center justify-content-center gap-4 m-2">
-            <label className="">Extra Principal Payment</label>
+      <div className="w-100">
+        <div className="w-100 align-items-centertext-center p-4 bg-warning">
+          <div className="d-flex w-100 align-item-center justify-content-around">
+            <label className="w-50">Extra Principal Payment</label>
             <span>$</span>
             <input
               placeholder="Extra Principal Payments"
-              className="w-20"
+              className="w-25"
               type={Number}
               // value={}
+              onChange={(e) => setExtraPrincipal(e.target.value)}
             />
-            <div className="d-flex w-100 align-item-center justify-content-center gap-4 m-2">
-              <Dropdown>
+            <div className="d-flex w-100 align-item-center justify-content-center">
+              {/* <Dropdown>
                 <Dropdown.Toggle variant="secondary">
                   {startMonth || "Select Month"}
                 </Dropdown.Toggle>
@@ -291,34 +339,67 @@ function App() {
                     </Dropdown.Item>
                   ))}
                 </Dropdown.Menu>
-              </Dropdown>
+              </Dropdown> */}
 
               <button
                 type="button"
                 class="btn btn-primary "
-                onClick={generateAmortizationSchedule}
+                onClick={
+                  extraPrincipal === 0
+                    ? generateAmortizationSchedule
+                    : generateExtraAmortizationSchedule
+                }
               >
                 View Amortization Schedule
+              </button>
+            </div>
+            <div className="w-100 d-flex align-items-center justify-content-center">
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={() => {
+                  setLoanAmount("");
+                  setNumMonths("");
+                  setAnnualInterestRate("");
+                  setMonthlyPayment("");
+                  setPrincipalAmount("");
+                  setInterestRate("");
+                  setSelectedMonth();
+                  setSelectedYear("");
+                  setStartMonth("");
+                  setStartYear("");
+                  setEndMonth("");
+                  setEndYear("");
+                  setAmortizationSchedule([]);
+                  setExtraPrincipal("");
+                  setTotalAmount(0.0);
+                  setExtraPrincipal(0);
+                }}
+              >
+                Clear All Fields
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="w-50 gap-20 align-items-center justify-content-center text-light  bg-success border">
+      <div className="w-100 gap-4 align-items-center justify-content-center text-light p-2 bg-success">
         <h3 className="text-center"> Amortization Schedule</h3>
         <p className="text-center">
           <b>
             ${loanAmount} Loan {annualInterestRate} % Interest Rate
           </b>
         </p>
+        <p className="text-center">
+          You'll pay a total of <strong>${totalAmount}</strong>
+        </p>
         {amortizationSchedule.length > 0 && (
-          <table class="table">
+          <table class="table p-2">
             <thead>
               <tr>
                 <th scope="col">Sr.No#</th>
                 <th scope="col">Month</th>
-
+                <th scope="col">Year</th>
                 <th scope="col">Payment</th>
                 <th scope="col">Principal Paid</th>
                 <th scope="col">Interest Paid</th>
@@ -330,6 +411,7 @@ function App() {
                 <tr key={entry.month} scope="row">
                   <td>{entry.count}</td>
                   <td>{entry.month}</td>
+                  <td>{entry.year}</td>
                   <td>${entry.payment}</td>
                   <td>${entry.principalPaid}</td>
                   <td>${entry.interestPaid}</td>
@@ -338,6 +420,34 @@ function App() {
               ))}
             </tbody>
           </table>
+        )}
+        {amortizationSchedule.length > 0 && (
+          <div className="text-center">
+            <p>
+              <b>Total Principal Paid: $</b>
+              {amortizationSchedule
+                .reduce(
+                  (total, entry) => total + parseFloat(entry.principalPaid),
+                  0
+                )
+                .toFixed(2)}
+            </p>
+            <p>
+              <b>Total Interest Paid: $</b>
+              {amortizationSchedule
+                .reduce(
+                  (total, entry) => total + parseFloat(entry.interestPaid),
+                  0
+                )
+                .toFixed(2)}
+            </p>
+            <p>
+              <b>Total Payment Paid: $</b>
+              {amortizationSchedule
+                .reduce((total, entry) => total + parseFloat(entry.payment), 0)
+                .toFixed(2)}
+            </p>
+          </div>
         )}
       </div>
     </div>
