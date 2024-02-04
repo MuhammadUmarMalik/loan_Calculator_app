@@ -17,11 +17,13 @@ function App() {
   const [selectedYear, setSelectedYear] = useState("");
   const [startMonth, setStartMonth] = useState("");
   const [startYear, setStartYear] = useState("");
-  const [endMonth, setEndMonth] = useState("");
-  const [endYear, setEndYear] = useState("");
   const [amortizationSchedule, setAmortizationSchedule] = useState([]);
+  const [extraAmortizationSchedule, setExtraAmortizationSchedule] = useState(
+    []
+  );
   const [extraPrincipal, setExtraPrincipal] = useState("");
-
+  const [paymentFrequencyPreference, setPaymentFrequencyPreference] =
+    useState("monthly");
   const months = [
     "January",
     "February",
@@ -42,21 +44,6 @@ function App() {
     (_, index) => new Date().getFullYear() + index
   );
 
-  const handleMonthSelect = (month, type) => {
-    if (type === "start") {
-      setStartMonth(month);
-    } else {
-      setEndMonth(month);
-    }
-  };
-
-  const handleYearSelect = (year, type) => {
-    if (type === "start") {
-      setStartYear(year);
-    } else {
-      setEndYear(year);
-    }
-  };
   useEffect(() => {
     // This code will run after totalAmount state is updated
     console.log("Total Loan Payment updated:", totalAmount);
@@ -81,6 +68,7 @@ function App() {
     // console.log("numerator", numerator);
     const denominator = Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1;
     // console.log("denominator", denominator);
+
     const monthlyPaymentValue = loanAmount * (numerator / denominator);
     // console.log("monthlypayment----->", monthlyPaymentValue);
     setMonthlyPayment(monthlyPaymentValue.toFixed(2));
@@ -97,6 +85,19 @@ function App() {
   function getCurrentYear() {
     return new Date().getFullYear();
   }
+  const handlePaymentFrequencySelect = () => {
+    switch (paymentFrequencyPreference) {
+      case "quarterly":
+        return 3;
+      case "semi-annually":
+        return 6;
+      case "annually":
+        return 12;
+      default:
+        return 1; // Monthly as default
+    }
+  };
+
   // generate Amortization Schedule
   const generateAmortizationSchedule = () => {
     const monthlyInterestRate = annualInterestRate / 100 / 12;
@@ -105,23 +106,28 @@ function App() {
       monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments);
     const denominator = Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1;
 
-    const monthlyPaymentValue = loanAmount * (numerator / denominator);
+    let monthlyPaymentValue = loanAmount * (numerator / denominator);
+    const paymentFrequency = handlePaymentFrequencySelect();
 
-    const monthlyPayment = calculateMonthlyPayment();
+    let monthlyPayment = calculateMonthlyPayment();
     setMonthlyPayment(monthlyPayment.toFixed(2));
 
     const totalAmount = (monthlyPayment * numberOfPayments).toFixed(2);
     // console.log("total loan payement", totalAmount);
     setTotalAmount(totalAmount);
 
-    const extraPrincipalValue = parseFloat(extraPrincipal) || 0;
+    // const extraPrincipalValue = parseFloat(extraPrincipal) || 0;
     const schedule = [];
     let remainingBalance = loanAmount;
     let count;
 
     for (let i = 1; i <= numMonths; i++) {
       const interestPaid = remainingBalance * monthlyInterestRate;
-      const principalPaid = monthlyPaymentValue - interestPaid;
+      let principalPaid = monthlyPaymentValue - interestPaid;
+      if (remainingBalance < principalPaid) {
+        principalPaid = remainingBalance;
+        monthlyPaymentValue = principalPaid + interestPaid; // Adjust monthly payment
+      }
       remainingBalance -= principalPaid;
       if (remainingBalance <= 0) {
         remainingBalance = 0; // Set remaining balance to zero if it becomes negative
@@ -131,7 +137,6 @@ function App() {
       schedule.push({
         count,
         month: months[(startMonth - 1 + i) % 12],
-        year,
         payment: monthlyPayment.toFixed(2),
         principalPaid: principalPaid.toFixed(2),
         interestPaid: interestPaid.toFixed(2),
@@ -143,7 +148,7 @@ function App() {
   };
 
   //extra principal schedule
-  // generate Amortization Schedule
+  // generate Extra Amortization Schedule
   const generateExtraAmortizationSchedule = () => {
     const monthlyInterestRate = annualInterestRate / 100 / 12;
     const numberOfPayments = numMonths;
@@ -151,9 +156,10 @@ function App() {
       monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments);
     const denominator = Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1;
     const extraPrincipalValue = parseFloat(extraPrincipal) || 0;
-    const monthlyPaymentValue =
-      loanAmount * (numerator / denominator) + extraPrincipalValue;
+    const paymentFrequency = handlePaymentFrequencySelect();
 
+    let monthlyPaymentValue =
+      loanAmount * (numerator / denominator) + extraPrincipalValue;
     const totalAmount = (monthlyPaymentValue * numberOfPayments).toFixed(2);
     setTotalAmount(totalAmount);
 
@@ -164,25 +170,36 @@ function App() {
 
     for (let i = 1; i <= numMonths; i++) {
       const interestPaid = remainingBalance * monthlyInterestRate;
-      const principalPaid = monthlyPaymentValue - interestPaid;
+      let principalPaid = monthlyPaymentValue - interestPaid;
+      if (remainingBalance < principalPaid) {
+        principalPaid = remainingBalance;
+        monthlyPaymentValue = principalPaid + interestPaid; // Adjust monthly payment
+      }
+
       remainingBalance -= principalPaid;
       if (remainingBalance <= 0) {
         remainingBalance = 0; // Set remaining balance to zero if it becomes negative
       }
       count = i;
       const year = years[Math.floor((startMonth - 1 + i) / 12) % years.length];
-      schedule.push({
-        count,
-        month: months[(startMonth - 1 + i) % 12],
-        year,
-        payment: monthlyPaymentValue.toFixed(2),
-        principalPaid: principalPaid.toFixed(2),
-        interestPaid: interestPaid.toFixed(2),
-        remainingBalance: remainingBalance.toFixed(2),
-      });
+      if (
+        monthlyPaymentValue !== 0 ||
+        principalPaid !== 0 ||
+        interestPaid !== 0 ||
+        remainingBalance !== 0
+      ) {
+        schedule.push({
+          count,
+          month: months[(startMonth - 1 + i) % 12],
+          payment: monthlyPaymentValue.toFixed(2),
+          principalPaid: principalPaid.toFixed(2),
+          interestPaid: interestPaid.toFixed(2),
+          remainingBalance: remainingBalance.toFixed(2),
+        });
+      }
     }
 
-    setAmortizationSchedule(schedule);
+    setExtraAmortizationSchedule(schedule);
   };
   return (
     <div className="w-100 d-flex flex-column align-items-center justify-content-center ">
@@ -277,80 +294,53 @@ function App() {
               onChange={(e) => setExtraPrincipal(e.target.value)}
             />
             <div className="d-flex w-100 align-item-center justify-content-center">
-              {/* <Dropdown>
-                <Dropdown.Toggle variant="secondary">
-                  {startMonth || "Select Month"}
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  {months.map((month, index) => (
+              <div className="d-flex w-100 align-item-center justify-content-center gap-4 m-2">
+                <label className="align-self-center">Payment Frequency</label>
+                <Dropdown>
+                  <Dropdown.Toggle variant="secondary">
+                    {paymentFrequencyPreference || "Select Frequency"}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
                     <Dropdown.Item
-                      key={index}
-                      onClick={() => handleMonthSelect(month, "start")}
+                      onClick={() => handlePaymentFrequencySelect("monthly")}
                     >
-                      {month}
+                      Monthly
                     </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown>
-              <Dropdown>
-                <Dropdown.Toggle variant="secondary">
-                  {startYear || "Select Year"}
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  {years.map((year, index) => (
                     <Dropdown.Item
-                      key={index}
-                      onClick={() => handleYearSelect(year, "start")}
+                      onClick={() => handlePaymentFrequencySelect("quarterly")}
                     >
-                      {year}
+                      Quarterly
                     </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown>
-
-              <label className="align-self-center">to</label>
-              <Dropdown>
-                <Dropdown.Toggle variant="secondary">
-                  {endMonth || "Select Month"}
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  {months.map((month, index) => (
                     <Dropdown.Item
-                      key={index}
-                      onClick={() => handleMonthSelect(month, "end")}
+                      onClick={() =>
+                        handlePaymentFrequencySelect("semi-annually")
+                      }
                     >
-                      {month}
+                      Semi-Annually
                     </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown>
-
-              <Dropdown>
-                <Dropdown.Toggle variant="secondary">
-                  {endYear || "Select Year"}
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  {years.map((year, index) => (
                     <Dropdown.Item
-                      key={index}
-                      onClick={() => handleYearSelect(year, "end")}
+                      onClick={() => handlePaymentFrequencySelect("annually")}
                     >
-                      {year}
+                      Annually
                     </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown> */}
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+              {/* ... (other components) */}
 
               <button
                 type="button"
-                class="btn btn-primary "
-                onClick={
-                  extraPrincipal === 0
-                    ? generateAmortizationSchedule
-                    : generateExtraAmortizationSchedule
-                }
+                class="btn btn-primary m-2"
+                onClick={generateAmortizationSchedule}
               >
-                View Amortization Schedule
+                View Regular Amortization Schedule
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary m-2"
+                onClick={generateExtraAmortizationSchedule}
+              >
+                View Extra Amortization Schedule
               </button>
             </div>
             <div className="w-100 d-flex align-items-center justify-content-center">
@@ -368,8 +358,6 @@ function App() {
                   setSelectedYear("");
                   setStartMonth("");
                   setStartYear("");
-                  setEndMonth("");
-                  setEndYear("");
                   setAmortizationSchedule([]);
                   setExtraPrincipal("");
                   setTotalAmount(0.0);
@@ -391,64 +379,131 @@ function App() {
           </b>
         </p>
         <p className="text-center">
-          You'll pay a total of <strong>${totalAmount}</strong>
+          You'll pay a total of{" "}
+          <strong>${totalAmount - extraPrincipal * numMonths}</strong>
         </p>
-        {amortizationSchedule.length > 0 && (
-          <table class="table p-2">
-            <thead>
-              <tr>
-                <th scope="col">Sr.No#</th>
-                <th scope="col">Month</th>
-                <th scope="col">Year</th>
-                <th scope="col">Payment</th>
-                <th scope="col">Principal Paid</th>
-                <th scope="col">Interest Paid</th>
-                <th scope="col">Remaining Balance</th>
-              </tr>
-            </thead>
-            <tbody>
-              {amortizationSchedule.map((entry) => (
-                <tr key={entry.month} scope="row">
-                  <td>{entry.count}</td>
-                  <td>{entry.month}</td>
-                  <td>{entry.year}</td>
-                  <td>${entry.payment}</td>
-                  <td>${entry.principalPaid}</td>
-                  <td>${entry.interestPaid}</td>
-                  <td>${entry.remainingBalance}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        {amortizationSchedule.length > 0 && (
-          <div className="text-center">
-            <p>
-              <b>Total Principal Paid: $</b>
-              {amortizationSchedule
-                .reduce(
-                  (total, entry) => total + parseFloat(entry.principalPaid),
-                  0
-                )
-                .toFixed(2)}
-            </p>
-            <p>
-              <b>Total Interest Paid: $</b>
-              {amortizationSchedule
-                .reduce(
-                  (total, entry) => total + parseFloat(entry.interestPaid),
-                  0
-                )
-                .toFixed(2)}
-            </p>
-            <p>
-              <b>Total Payment Paid: $</b>
-              {amortizationSchedule
-                .reduce((total, entry) => total + parseFloat(entry.payment), 0)
-                .toFixed(2)}
-            </p>
+        <div className="flex justify-content-around">
+          <div>
+            <p>Regular Amortization Schedule</p>
+            {amortizationSchedule.length > 0 && (
+              <table class="table p-2">
+                <thead>
+                  <tr>
+                    <th scope="col">Sr.No#</th>
+                    <th scope="col">Month</th>
+                    <th scope="col">Payment</th>
+                    <th scope="col">Principal Paid</th>
+                    <th scope="col">Interest Paid</th>
+                    <th scope="col">Remaining Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {amortizationSchedule.map((entry) => (
+                    <tr key={entry.month} scope="row">
+                      <td>{entry.count}</td>
+                      <td>{entry.month}</td>
+                      <td>${entry.payment}</td>
+                      <td>${entry.principalPaid}</td>
+                      <td>${entry.interestPaid}</td>
+                      <td>${entry.remainingBalance}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {amortizationSchedule.length > 0 && (
+              <div className="text-center">
+                <p>
+                  <b>Total Principal Paid: $</b>
+                  {amortizationSchedule
+                    .reduce(
+                      (total, entry) => total + parseFloat(entry.principalPaid),
+                      0
+                    )
+                    .toFixed(2)}
+                </p>
+                <p>
+                  <b>Total Interest Paid: $</b>
+                  {amortizationSchedule
+                    .reduce(
+                      (total, entry) => total + parseFloat(entry.interestPaid),
+                      0
+                    )
+                    .toFixed(2)}
+                </p>
+                <p>
+                  <b>Total Payment Paid: $</b>
+                  {amortizationSchedule
+                    .reduce(
+                      (total, entry) => total + parseFloat(entry.payment),
+                      0
+                    )
+                    .toFixed(2)}
+                </p>
+              </div>
+            )}
           </div>
-        )}
+          <div>
+            <p>Extra Amortization Schedule</p>
+            {extraAmortizationSchedule.length > 0 && (
+              <table class="table p-2">
+                <thead>
+                  <tr>
+                    <th scope="col">Sr.No#</th>
+                    <th scope="col">Month</th>
+                    <th scope="col">Payment</th>
+                    <th scope="col">Principal Paid</th>
+                    <th scope="col">Interest Paid</th>
+                    <th scope="col">Remaining Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {extraAmortizationSchedule.map((entry) => (
+                    <tr key={entry.month} scope="row">
+                      <td>{entry.count}</td>
+                      <td>{entry.month}</td>
+                      <td>${entry.payment}</td>
+                      <td>${entry.principalPaid}</td>
+                      <td>${entry.interestPaid}</td>
+                      <td>${entry.remainingBalance}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {extraAmortizationSchedule.length > 0 && (
+              <div className="text-center">
+                <p>
+                  <b>Total Principal Paid: $</b>
+                  {extraAmortizationSchedule
+                    .reduce(
+                      (total, entry) => total + parseFloat(entry.principalPaid),
+                      0
+                    )
+                    .toFixed(2)}
+                </p>
+                <p>
+                  <b>Total Interest Paid: $</b>
+                  {extraAmortizationSchedule
+                    .reduce(
+                      (total, entry) => total + parseFloat(entry.interestPaid),
+                      0
+                    )
+                    .toFixed(2)}
+                </p>
+                <p>
+                  <b>Total Payment Paid: $</b>
+                  {extraAmortizationSchedule
+                    .reduce(
+                      (total, entry) => total + parseFloat(entry.payment),
+                      0
+                    )
+                    .toFixed(2)}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
