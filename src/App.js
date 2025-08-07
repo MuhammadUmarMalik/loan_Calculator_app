@@ -8,6 +8,8 @@ import Dashboard from "./pages/Dashboard";
 import Calculator from "./pages/Calculator";
 import Schedule from "./pages/Schedule";
 import Reports from "./pages/Reports";
+import Profile from "./pages/Profile";
+import Account from "./pages/Account";
 
 function App() {
   // State management
@@ -236,6 +238,9 @@ function App() {
             <Route path="calculator" element={<Calculator {...pageProps} />} />
             <Route path="schedule" element={<Schedule {...pageProps} />} />
             <Route path="reports" element={<Reports {...pageProps} />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="account" element={<Account />} />
+            <Route path="settings" element={<Profile />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

@@ -41,10 +41,11 @@ const Sidebar = () => {
   return (
     <>
       {/* Mobile menu button */}
-      <div className="lg:hidden absolute top-4 left-4 z-50">
+      <div className="lg:hidden fixed top-4 left-4 z-50">
         <button 
           onClick={toggleMobileMenu}
-          className="p-2 rounded-md text-white hover:bg-blue-700"
+          className="p-2 rounded-md bg-primary text-white hover:bg-blue-700 shadow-md"
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
         >
           {isMobileMenuOpen ? 
             <XMarkIcon className="h-6 w-6" /> : 
@@ -58,6 +59,15 @@ const Sidebar = () => {
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={toggleMobileMenu}></div>
           <div className="relative flex-1 flex flex-col max-w-xs w-full bg-primary">
+            <div className="absolute top-0 right-0 -mr-12 pt-2">
+              <button
+                className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                onClick={toggleMobileMenu}
+                aria-label="Close sidebar"
+              >
+                <XMarkIcon className="h-6 w-6 text-white" />
+              </button>
+            </div>
             <div className="h-0 flex-1 flex flex-col overflow-y-auto pt-5 pb-4">
               <div className="flex-shrink-0 flex items-center px-4">
                 <h1 className="text-xl font-bold text-white">Loan Calculator</h1>
@@ -88,7 +98,7 @@ const Sidebar = () => {
                   </div>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-white">{currentUser?.email || 'User'}</p>
+                  <p className="text-sm font-medium text-white">{currentUser?.displayName || 'User'}</p>
                 </div>
                 <button
                   onClick={logout}
@@ -151,7 +161,7 @@ const Sidebar = () => {
               </div>
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-white">{currentUser?.email || 'User'}</p>
+              <p className="text-sm font-medium text-white">{currentUser?.displayName || 'User'}</p>
             </div>
             <button
               onClick={logout}

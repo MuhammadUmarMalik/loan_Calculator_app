@@ -3,16 +3,8 @@ import {
   MoonIcon, 
   SunIcon, 
   UserIcon, 
-  BellIcon, 
   CogIcon, 
-  XMarkIcon,
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  InformationCircleIcon,
-  ChevronDownIcon,
   PencilIcon,
-  KeyIcon,
-  ShieldExclamationIcon,
   UserCircleIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
@@ -25,39 +17,25 @@ const Header = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: 'success',
-      message: 'Your loan calculation was saved successfully.',
-      time: '2 min ago',
-      read: false
-    },
-    {
-      id: 2,
-      type: 'info',
-      message: 'New feature: Extra payment calculator is now available!',
-      time: '1 hour ago',
-      read: false
-    },
-    {
-      id: 3,
-      type: 'warning',
-      message: 'Interest rates are changing next month. Update your calculations.',
-      time: '1 day ago',
-      read: true
-    }
-  ]);
   
-  const notificationsRef = useRef(null);
   const settingsRef = useRef(null);
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
 
+  // Initialize dark mode from localStorage if available
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedDarkMode);
+    if (savedDarkMode) {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+  
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', newDarkMode);
     document.documentElement.classList.toggle('dark');
   };
 
@@ -76,12 +54,9 @@ const Header = () => {
     setShowRegisterModal(false);
   };
   
-  // Handle notification and settings popover clicks outside
+  // Handle settings popover clicks outside
   useEffect(() => {
     function handleClickOutside(event) {
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
-        setShowNotifications(false);
-      }
       if (settingsRef.current && !settingsRef.current.contains(event.target)) {
         setShowSettings(false);
       }
@@ -93,22 +68,8 @@ const Header = () => {
     };
   }, []);
   
-  const toggleNotifications = () => {
-    setShowNotifications(!showNotifications);
-    setShowSettings(false);
-  };
-  
   const toggleSettings = () => {
     setShowSettings(!showSettings);
-    setShowNotifications(false);
-  };
-  
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(notification => ({...notification, read: true})));
-  };
-  
-  const removeNotification = (id) => {
-    setNotifications(notifications.filter(notification => notification.id !== id));
   };
   
   const handleSettingsNavigation = (path) => {
@@ -117,13 +78,18 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white text-gray-800 py-3 px-6 shadow-md border-b border-gray-200">
+    <header className="sticky top-0 z-30 bg-white text-gray-800 py-3 px-4 sm:px-6 shadow-md border-b border-gray-200">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         {/* Empty space for sidebar alignment */}
-        <div className="lg:w-64"></div>
+        <div className="lg:w-64 hidden lg:block"></div>
+        
+        {/* App title on small screens (mobile) */}
+        <div className="lg:hidden flex items-center ml-8 sm:ml-12">
+          <h1 className="text-lg font-bold text-primary">Loan Calculator</h1>
+        </div>
         
         {/* Search bar - Center */}
-        <div className="flex-1 max-w-lg hidden md:block">
+        <div className="flex-1 max-w-lg hidden md:block lg:mx-4">
           <div className="relative">
             <input
               type="search"
@@ -152,80 +118,6 @@ const Header = () => {
             )}
           </button>
           
-          {/* Notifications Button with Dropdown */}
-          <div className="relative" ref={notificationsRef}>
-            <button 
-              onClick={toggleNotifications}
-              className="p-2 rounded-full text-gray-600 hover:bg-gray-100 relative"
-              aria-label="Notifications"
-            >
-              <BellIcon className="h-5 w-5" />
-              {notifications.some(n => !n.read) && (
-                <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-              )}
-            </button>
-            
-            {/* Notifications Dropdown */}
-            {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
-                <div className="px-4 py-2 border-b border-gray-200 flex justify-between items-center">
-                  <h3 className="font-semibold text-gray-700">Notifications</h3>
-                  <div className="flex space-x-2">
-                    <button 
-                      onClick={markAllAsRead} 
-                      className="text-xs text-primary hover:text-blue-700 font-medium"
-                    >
-                      Mark all as read
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="max-h-80 overflow-y-auto">
-                  {notifications.length > 0 ? (
-                    notifications.map(notification => (
-                      <div 
-                        key={notification.id} 
-                        className={`px-4 py-3 hover:bg-gray-50 flex ${!notification.read ? 'bg-blue-50' : ''}`}
-                      >
-                        <div className="flex-shrink-0 mr-3">
-                          {notification.type === 'success' && (
-                            <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                              <CheckCircleIcon className="h-5 w-5 text-green-500" />
-                            </div>
-                          )}
-                          {notification.type === 'warning' && (
-                            <div className="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center">
-                              <ExclamationCircleIcon className="h-5 w-5 text-yellow-500" />
-                            </div>
-                          )}
-                          {notification.type === 'info' && (
-                            <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                              <InformationCircleIcon className="h-5 w-5 text-blue-500" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 pr-8 relative">
-                          <p className="text-sm text-gray-800">{notification.message}</p>
-                          <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
-                          <button
-                            onClick={() => removeNotification(notification.id)}
-                            className="absolute top-0 right-0 text-gray-400 hover:text-gray-600"
-                          >
-                            <XMarkIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="px-4 py-6 text-center text-gray-500">
-                      <p>No notifications</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-          
           {/* Settings Button with Dropdown */}
           <div className="relative" ref={settingsRef}>
             <button 
@@ -238,7 +130,7 @@ const Header = () => {
             
             {/* Settings Dropdown */}
             {showSettings && (
-              <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
+              <div className="absolute right-0 mt-2 w-56 sm:w-60 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
                 <div className="px-4 py-2 border-b border-gray-200">
                   <h3 className="font-semibold text-gray-700">Settings</h3>
                 </div>
@@ -258,22 +150,6 @@ const Header = () => {
                   >
                     <PencilIcon className="h-5 w-5 text-gray-500 mr-3" />
                     <span>Edit Account</span>
-                  </button>
-                  
-                  <button 
-                    onClick={() => handleSettingsNavigation('/security')}
-                    className="px-4 py-2 hover:bg-gray-50 w-full text-left flex items-center"
-                  >
-                    <KeyIcon className="h-5 w-5 text-gray-500 mr-3" />
-                    <span>Security Settings</span>
-                  </button>
-                  
-                  <button 
-                    onClick={() => handleSettingsNavigation('/privacy')}
-                    className="px-4 py-2 hover:bg-gray-50 w-full text-left flex items-center"
-                  >
-                    <ShieldExclamationIcon className="h-5 w-5 text-gray-500 mr-3" />
-                    <span>Privacy & Data</span>
                   </button>
                   
                   <div className="border-t border-gray-200 mt-1"></div>
@@ -311,7 +187,7 @@ const Header = () => {
           
           {currentUser ? (
             <div className="flex items-center gap-2">
-              <div className="hidden md:flex flex-col items-end">
+              <div className="hidden sm:flex flex-col items-end">
                 <span className="text-sm font-medium">{currentUser.displayName || currentUser.email.split('@')[0]}</span>
                 <span className="text-xs text-gray-500">Premium Account</span>
               </div>
@@ -322,6 +198,7 @@ const Header = () => {
                 <button 
                   onClick={logout}
                   className="ml-2 p-1 rounded-full text-gray-600 hover:bg-gray-100"
+                  aria-label="Log out"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -332,7 +209,7 @@ const Header = () => {
           ) : (
             <button 
               onClick={openLoginModal}
-              className="px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-blue-700 transition-colors"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg bg-primary text-white font-medium hover:bg-blue-700 transition-colors text-sm sm:text-base"
               id="login-button"
               data-testid="login-button"
               aria-label="Login or Signup"

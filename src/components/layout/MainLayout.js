@@ -16,11 +16,11 @@ const MainLayoutContent = () => {
         {/* Main content */}
         <div className="lg:pl-64">
           <Header />
-          <main className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <main className="py-4 sm:py-6 px-3 sm:px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
             <Outlet />
           </main>
           
-          <footer className="bg-white shadow-inner py-4 px-4 sm:px-6 lg:px-8 mt-8">
+          <footer className="bg-white shadow-inner py-3 sm:py-4 px-3 sm:px-4 md:px-6 lg:px-8 mt-4 sm:mt-8">
             <div className="max-w-7xl mx-auto">
               <p className="text-center text-sm text-gray-500">
                 © {new Date().getFullYear()} Mortgage Calculator. All rights reserved.

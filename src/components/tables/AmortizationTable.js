@@ -80,45 +80,45 @@ const AmortizationTable = ({ schedule, title, isExtra = false }) => {
       
       {schedule && schedule.length > 0 ? (
         <>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="overflow-x-auto -mx-4 sm:-mx-5 md:-mx-6 px-4 sm:px-5 md:px-6">
+            <table className="min-w-full divide-y divide-gray-200 whitespace-nowrap">
               <thead className="table-header">
                 <tr>
                   <th 
-                    className="px-4 py-3 text-left cursor-pointer"
+                    className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm cursor-pointer"
                     onClick={() => requestSort('count')}
                   >
-                    Payment # {getSortIcon('count')}
+                    # {getSortIcon('count')}
                   </th>
                   <th 
-                    className="px-4 py-3 text-left cursor-pointer"
+                    className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm cursor-pointer"
                     onClick={() => requestSort('month')}
                   >
                     Month {getSortIcon('month')}
                   </th>
                   <th 
-                    className="px-4 py-3 text-right cursor-pointer"
+                    className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm cursor-pointer"
                     onClick={() => requestSort('payment')}
                   >
                     Payment {getSortIcon('payment')}
                   </th>
                   <th 
-                    className="px-4 py-3 text-right cursor-pointer"
+                    className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm cursor-pointer"
                     onClick={() => requestSort('principalPaid')}
                   >
                     Principal {getSortIcon('principalPaid')}
                   </th>
                   <th 
-                    className="px-4 py-3 text-right cursor-pointer"
+                    className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm cursor-pointer"
                     onClick={() => requestSort('interestPaid')}
                   >
                     Interest {getSortIcon('interestPaid')}
                   </th>
                   <th 
-                    className="px-4 py-3 text-right cursor-pointer"
+                    className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm cursor-pointer"
                     onClick={() => requestSort('remainingBalance')}
                   >
-                    Remaining Balance {getSortIcon('remainingBalance')}
+                    Balance {getSortIcon('remainingBalance')}
                   </th>
                 </tr>
               </thead>
@@ -126,24 +126,24 @@ const AmortizationTable = ({ schedule, title, isExtra = false }) => {
                 {currentItems.map((entry, index) => (
                   <tr 
                     key={`${entry.count}-${index}`} 
-                    className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-secondary transition-colors`}
+                    className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-secondary transition-colors text-xs sm:text-sm`}
                   >
-                    <td className="px-4 py-2">{entry.count}</td>
-                    <td className="px-4 py-2">{entry.month}</td>
-                    <td className="px-4 py-2 text-right">${entry.payment}</td>
-                    <td className="px-4 py-2 text-right">${entry.principalPaid}</td>
-                    <td className="px-4 py-2 text-right">${entry.interestPaid}</td>
-                    <td className="px-4 py-2 text-right">${entry.remainingBalance}</td>
+                    <td className="px-2 sm:px-4 py-1.5 sm:py-2">{entry.count}</td>
+                    <td className="px-2 sm:px-4 py-1.5 sm:py-2">{entry.month}</td>
+                    <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-right">${entry.payment}</td>
+                    <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-right">${entry.principalPaid}</td>
+                    <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-right">${entry.interestPaid}</td>
+                    <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-right">${entry.remainingBalance}</td>
                   </tr>
                 ))}
               </tbody>
-              <tfoot className="bg-gray-100 font-semibold">
+              <tfoot className="bg-gray-100 font-semibold text-xs sm:text-sm">
                 <tr>
-                  <td colSpan={2} className="px-4 py-2 text-left">Totals</td>
-                  <td className="px-4 py-2 text-right">${totals.payment.toFixed(2)}</td>
-                  <td className="px-4 py-2 text-right">${totals.principal.toFixed(2)}</td>
-                  <td className="px-4 py-2 text-right">${totals.interest.toFixed(2)}</td>
-                  <td className="px-4 py-2 text-right">-</td>
+                  <td colSpan={2} className="px-2 sm:px-4 py-1.5 sm:py-2 text-left">Totals</td>
+                  <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-right">${totals.payment.toFixed(2)}</td>
+                  <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-right">${totals.principal.toFixed(2)}</td>
+                  <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-right">${totals.interest.toFixed(2)}</td>
+                  <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-right">-</td>
                 </tr>
               </tfoot>
             </table>
@@ -151,9 +151,9 @@ const AmortizationTable = ({ schedule, title, isExtra = false }) => {
 
           {/* Pagination controls */}
           {totalPages > 1 && (
-            <div className="flex justify-between items-center mt-4 px-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center mt-3 sm:mt-4 px-2 sm:px-4 gap-2">
               <div>
-                <span className="text-sm text-text-secondary">
+                <span className="text-xs sm:text-sm text-text-secondary">
                   Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, schedule.length)} of {schedule.length}
                 </span>
               </div>
@@ -161,14 +161,14 @@ const AmortizationTable = ({ schedule, title, isExtra = false }) => {
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className="px-3 py-1 rounded bg-gray-100 disabled:opacity-50"
+                  className="px-2 sm:px-3 py-1 text-xs sm:text-sm rounded bg-gray-100 disabled:opacity-50"
                 >
                   Prev
                 </button>
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="px-3 py-1 rounded bg-gray-100 disabled:opacity-50"
+                  className="px-2 sm:px-3 py-1 text-xs sm:text-sm rounded bg-gray-100 disabled:opacity-50"
                 >
                   Next
                 </button>

@@ -52,8 +52,28 @@ body {
   border-color: #374151;
 }
 
+.dark .border-gray-100 {
+  border-color: #374151;
+}
+
 .dark .bg-gray-100 {
   background-color: #374151;
+}
+
+.dark .bg-blue-50 {
+  background-color: #172554;
+}
+
+.dark .text-blue-700 {
+  color: #93C5FD;
+}
+
+.dark .text-blue-800 {
+  color: #BFDBFE;
+}
+
+.dark .text-red-600 {
+  color: #FCA5A5;
 }
 
 .dark .input-field {
@@ -66,6 +86,38 @@ body {
   background-color: #2D3748;
 }
 
+.dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+.dark .shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+.dark .shadow-inner {
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.dark .text-gray-800 {
+  color: #F3F4F6;
+}
+
+.dark .text-gray-700 {
+  color: #E5E7EB;
+}
+
+.dark .text-gray-600 {
+  color: #D1D5DB;
+}
+
+.dark .text-gray-500 {
+  color: #9CA3AF;
+}
+
+.dark header.bg-white {
+  background-color: #1F2937;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -73,23 +125,23 @@ code {
 
 @layer components {
   .card {
-    @apply bg-white rounded-xl shadow-md p-6;
+    @apply bg-white rounded-xl shadow-md p-4 sm:p-5 md:p-6;
   }
   
   .input-field {
-    @apply w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+    @apply w-full border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base;
   }
   
   .btn-primary {
-    @apply bg-primary text-white rounded-lg px-4 py-2 font-medium hover:bg-blue-700 transition duration-200;
+    @apply bg-primary text-white rounded-lg px-3 sm:px-4 py-2 font-medium hover:bg-blue-700 transition duration-200 text-sm sm:text-base;
   }
   
   .btn-success {
-    @apply bg-accent text-white rounded-lg px-4 py-2 font-medium hover:bg-green-600 transition duration-200;
+    @apply bg-accent text-white rounded-lg px-3 sm:px-4 py-2 font-medium hover:bg-green-600 transition duration-200 text-sm sm:text-base;
   }
   
   .btn-danger {
-    @apply bg-error text-white rounded-lg px-4 py-2 font-medium hover:bg-red-600 transition duration-200;
+    @apply bg-error text-white rounded-lg px-3 sm:px-4 py-2 font-medium hover:bg-red-600 transition duration-200 text-sm sm:text-base;
   }
   
   .table-header {
@@ -102,8 +154,12 @@ code {
 
   /* Responsive improvements */
   @media (max-width: 640px) {
+    .section-title {
+      @apply text-lg mb-3;
+    }
+    
     .card {
-      @apply p-4;
+      @apply rounded-lg;
     }
   }
 }
