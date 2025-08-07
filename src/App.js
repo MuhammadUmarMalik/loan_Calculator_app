@@ -13,6 +13,7 @@ import Account from "./pages/Account";
 
 function App() {
   // State management
+  const [loanType, setLoanType] = useState("mortgage"); // New state for loan type
   const [loanAmount, setLoanAmount] = useState("");
   const [totalAmount, setTotalAmount] = useState(0);
   const [numMonths, setNumMonths] = useState("");
@@ -28,6 +29,13 @@ function App() {
   const [extraAmortizationSchedule, setExtraAmortizationSchedule] = useState([]);
   const [extraPrincipal, setExtraPrincipal] = useState("");
   const [paymentFrequencyPreference, setPaymentFrequencyPreference] = useState("monthly");
+  
+  // Loan-type specific states
+  const [downPayment, setDownPayment] = useState(""); // For car and house loans
+  const [tradeInValue, setTradeInValue] = useState(""); // For car loans
+  const [propertyTax, setPropertyTax] = useState(""); // For house loans
+  const [homeInsurance, setHomeInsurance] = useState(""); // For house loans
+  const [deviceModel, setDeviceModel] = useState(""); // For mobile loans
   
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -204,10 +212,19 @@ function App() {
     setAmortizationSchedule([]);
     setExtraPrincipal("");
     setTotalAmount(0);
+    
+    // Clear loan-specific fields
+    setDownPayment("");
+    setTradeInValue("");
+    setPropertyTax("");
+    setHomeInsurance("");
+    setDeviceModel("");
   };
 
   // Common props for all pages
   const pageProps = {
+    loanType,
+    setLoanType,
     loanAmount,
     setLoanAmount,
     numMonths,
@@ -226,7 +243,19 @@ function App() {
     generateAmortizationSchedule,
     generateExtraAmortizationSchedule,
     amortizationSchedule,
-    extraAmortizationSchedule
+    extraAmortizationSchedule,
+    
+    // Loan-specific props
+    downPayment,
+    setDownPayment,
+    tradeInValue,
+    setTradeInValue,
+    propertyTax,
+    setPropertyTax,
+    homeInsurance,
+    setHomeInsurance,
+    deviceModel,
+    setDeviceModel
   };
 
   return (

@@ -1,16 +1,53 @@
 import React from 'react';
-import { CurrencyDollarIcon, ClockIcon, CalculatorIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { 
+  CurrencyDollarIcon, 
+  ClockIcon, 
+  CalculatorIcon, 
+  ChartBarIcon,
+  HomeIcon,
+  TruckIcon,
+  DevicePhoneMobileIcon,
+  BuildingLibraryIcon
+} from '@heroicons/react/24/outline';
 
-const SummaryCard = ({ loanAmount, annualInterestRate, numMonths, monthlyPayment, totalAmount }) => {
+const SummaryCard = ({ 
+  loanType,
+  loanAmount, 
+  annualInterestRate, 
+  numMonths, 
+  monthlyPayment, 
+  totalAmount,
+  downPayment,
+  tradeInValue,
+  propertyTax,
+  homeInsurance,
+  deviceModel
+}) => {
   // Calculate total interest
   const totalInterest = totalAmount - loanAmount;
+  
+  // Get loan type icon and label
+  const getLoanTypeInfo = () => {
+    switch(loanType) {
+      case "car":
+        return { icon: TruckIcon, label: "Car Loan" };
+      case "mobile":
+        return { icon: DevicePhoneMobileIcon, label: "Mobile Phone Loan" };
+      case "house":
+        return { icon: HomeIcon, label: "Home Loan" };
+      default:
+        return { icon: BuildingLibraryIcon, label: "Mortgage Loan" };
+    }
+  };
+  
+  const { icon: LoanTypeIcon, label: loanTypeLabel } = getLoanTypeInfo();
   
   return (
     <div className="card bg-gradient-to-br from-white to-blue-50 shadow-lg border border-gray-100 transition-all hover:shadow-xl">
       <div className="flex items-center justify-between border-b border-gray-200 pb-3 sm:pb-4 mb-3 sm:mb-4">
         <h2 className="text-xl sm:text-2xl font-bold text-primary flex items-center">
-          <ChartBarIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-1 sm:mr-2" />
-          Loan Summary
+          <LoanTypeIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-1 sm:mr-2" />
+          {loanTypeLabel}
         </h2>
         <div className="bg-primary text-white rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs font-medium">
           {annualInterestRate ? `${annualInterestRate}% APR` : 'Enter details'}
@@ -69,6 +106,51 @@ const SummaryCard = ({ loanAmount, annualInterestRate, numMonths, monthlyPayment
           </div>
         </div>
         
+        {/* Loan-specific information */}
+        {(loanType === "car" || loanType === "house") && downPayment && (
+          <div className="border-t border-gray-200 pt-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-medium text-gray-500">Down Payment</p>
+              <p className="text-sm font-semibold">${downPayment}</p>
+            </div>
+          </div>
+        )}
+        
+        {loanType === "car" && tradeInValue && (
+          <div className="pt-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-medium text-gray-500">Trade-in Value</p>
+              <p className="text-sm font-semibold">${tradeInValue}</p>
+            </div>
+          </div>
+        )}
+        
+        {loanType === "house" && (
+          <div className="border-t border-gray-200 pt-3 space-y-2">
+            {propertyTax && (
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium text-gray-500">Property Tax</p>
+                <p className="text-sm font-semibold">{propertyTax}%</p>
+              </div>
+            )}
+            {homeInsurance && (
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium text-gray-500">Monthly Insurance</p>
+                <p className="text-sm font-semibold">${homeInsurance}</p>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {loanType === "mobile" && deviceModel && (
+          <div className="border-t border-gray-200 pt-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-medium text-gray-500">Device Model</p>
+              <p className="text-sm font-semibold">{deviceModel}</p>
+            </div>
+          </div>
+        )}
+
         {/* Total Cost - Full width */}
         <div className="mt-4 sm:mt-6 bg-gradient-to-r from-primary to-blue-700 text-white rounded-lg p-3 sm:p-4">
           <div className="flex justify-between items-center">
