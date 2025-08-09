@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import MainLayout from "./components/layout/MainLayout";
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 
 // Import pages
 import Dashboard from "./pages/Dashboard";
@@ -10,6 +11,10 @@ import Schedule from "./pages/Schedule";
 import Reports from "./pages/Reports";
 import Profile from "./pages/Profile";
 import Account from "./pages/Account";
+import Accessibility from "./pages/Accessibility";
+
+// Import SEO component
+import DynamicSEO from "./components/SEO/DynamicSEO";
 
 function App() {
   // State management
@@ -19,12 +24,13 @@ function App() {
   const [numMonths, setNumMonths] = useState("");
   const [annualInterestRate, setAnnualInterestRate] = useState("");
   const [monthlyPayment, setMonthlyPayment] = useState("");
-  const [principalAmount, setPrincipalAmount] = useState("");
-  const [interestRate, setInterestRate] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState();
-  const [selectedYear, setSelectedYear] = useState("");
-  const [startMonth, setStartMonth] = useState(new Date().getMonth() + 1); // Default to current month
-  const [startYear, setStartYear] = useState(new Date().getFullYear()); // Default to current year
+  // Removed unused state variables
+
+
+
+  const [startDate, setStartDate] = useState(new Date()); // Default to current date
+
+
   const [amortizationSchedule, setAmortizationSchedule] = useState([]);
   const [extraAmortizationSchedule, setExtraAmortizationSchedule] = useState([]);
   const [extraPrincipal, setExtraPrincipal] = useState("");
@@ -42,42 +48,46 @@ function App() {
     "July", "August", "September", "October", "November", "December",
   ];
 
-  const years = Array.from(
-    { length: 10 },
-    (_, index) => new Date().getFullYear() + index
-  );
+  // Removed unused years array
 
   // Calculate total interest
   const totalInterest = totalAmount - loanAmount;
 
-  const handleExtraPrincipalChange = (e) => {
-    setExtraPrincipal(e.target.value);
+  // Removed unused function handleExtraPrincipalChange
+
+  /**
+   * Calculate monthly payment amount
+   * @param {number} amount - Loan amount
+   * @param {number} months - Number of months
+   * @param {number} rate - Annual interest rate
+   * @returns {number} Monthly payment amount
+   */
+  const calculateMonthlyPayment = (amount = loanAmount, months = numMonths, rate = annualInterestRate) => {
+    if (!amount || !months || !rate) {
+      return 0;
+    }
+    
+    const monthlyInterestRate = rate / 100 / 12;
+    const numberOfPayments = months;
+    
+    // Avoid recalculation by storing intermediate values
+    const rateFactorPowered = Math.pow(1 + monthlyInterestRate, numberOfPayments);
+    const numerator = monthlyInterestRate * rateFactorPowered;
+    const denominator = rateFactorPowered - 1;
+    
+    return amount * (numerator / denominator);
   };
 
+  /**
+   * Handle monthly payment calculation and update state
+   */
   const handleMonthlyPayment = () => {
     if (!loanAmount || !numMonths || !annualInterestRate) {
       return;
     }
     
-    const monthlyInterestRate = annualInterestRate / 100 / 12;
-    const numberOfPayments = numMonths;
-    const numerator = monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments);
-    const denominator = Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1;
-
-    const monthlyPaymentValue = loanAmount * (numerator / denominator);
-    setMonthlyPayment(monthlyPaymentValue.toFixed(2));
-  };
-
-  const calculateMonthlyPayment = () => {
-    if (!loanAmount || !numMonths || !annualInterestRate) {
-      return 0;
-    }
-    
-    const monthlyInterestRate = annualInterestRate / 100 / 12;
-    const numberOfPayments = numMonths;
-    const numerator = monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments);
-    const denominator = Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1;
-    return loanAmount * (numerator / denominator);
+    const payment = calculateMonthlyPayment();
+    setMonthlyPayment(payment.toFixed(2));
   };
 
   const handlePaymentFrequencySelect = () => {
@@ -93,108 +103,113 @@ function App() {
     }
   };
 
-  // Generate Amortization Schedule
-  const generateAmortizationSchedule = () => {
+  /**
+   * Generate an amortization schedule based on given parameters
+   * @param {Object} options - Configuration options
+   * @param {boolean} options.includeExtra - Whether to include extra principal payments
+   * @returns {Array} Amortization schedule
+   */
+  const generateSchedule = (options = {}) => {
+    const { includeExtra = false } = options;
+    
     if (!loanAmount || !numMonths || !annualInterestRate) {
-      return;
+      return [];
     }
     
     const monthlyInterestRate = annualInterestRate / 100 / 12;
     const numberOfPayments = numMonths;
-    const numerator = monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments);
-    const denominator = Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1;
+    const extraPrincipalValue = includeExtra ? (parseFloat(extraPrincipal) || 0) : 0;
+    handlePaymentFrequencySelect(); // Call function but not using its result
 
-    let monthlyPaymentValue = loanAmount * (numerator / denominator);
-    const paymentFrequency = handlePaymentFrequencySelect();
-
-    let monthlyPayment = calculateMonthlyPayment();
-    setMonthlyPayment(monthlyPayment.toFixed(2));
-
-    const totalAmount = (monthlyPayment * numberOfPayments).toFixed(2);
-    setTotalAmount(totalAmount);
+    // Calculate base monthly payment
+    const regularPayment = calculateMonthlyPayment();
+    
+    // For display in the UI
+    setMonthlyPayment(regularPayment.toFixed(2));
+    
+    // Calculate total with or without extra payments
+    let monthlyPaymentValue = regularPayment + (includeExtra ? extraPrincipalValue : 0);
+    const estimatedTotal = (monthlyPaymentValue * numberOfPayments).toFixed(2);
+    
+    // Only update total amount if we're calculating the primary schedule
+    if (!includeExtra) {
+      setTotalAmount(estimatedTotal);
+    }
 
     const schedule = [];
     let remainingBalance = loanAmount;
-    let count;
-
+    
+    // Use startDate to calculate payment dates
+    const paymentStartDate = new Date(startDate);
+    
+    // Performance optimization - calculate dates outside the loop where possible
+    const startMonth = paymentStartDate.getMonth();
+    const startYear = paymentStartDate.getFullYear();
+    
     for (let i = 1; i <= numMonths; i++) {
       const interestPaid = remainingBalance * monthlyInterestRate;
       let principalPaid = monthlyPaymentValue - interestPaid;
+      
+      // Handle final payment adjustment
       if (remainingBalance < principalPaid) {
         principalPaid = remainingBalance;
-        monthlyPaymentValue = principalPaid + interestPaid; // Adjust monthly payment
+        monthlyPaymentValue = principalPaid + interestPaid;
       }
+      
       remainingBalance -= principalPaid;
+      
+      // Ensure balance doesn't go below zero
       if (remainingBalance <= 0) {
-        remainingBalance = 0; // Set remaining balance to zero if it becomes negative
+        remainingBalance = 0;
       }
-      count = i;
-      const year = years[Math.floor((startMonth - 1 + i) / 12) % years.length];
+      
+      // Skip empty entries for extra payment schedule
+      if (includeExtra && 
+          monthlyPaymentValue === 0 && 
+          principalPaid === 0 && 
+          interestPaid === 0 && 
+          remainingBalance === 0) {
+        continue;
+      }
+      
+      // Calculate payment date efficiently
+      const paymentDate = new Date(startYear, startMonth + i - 1, paymentStartDate.getDate());
+      const year = paymentDate.getFullYear();
+      const monthIndex = paymentDate.getMonth();
+      
       schedule.push({
-        count,
-        month: months[(startMonth - 1 + i) % 12],
-        payment: monthlyPayment.toFixed(2),
+        count: i,
+        date: paymentDate,
+        month: months[monthIndex],
+        year,
+        payment: (includeExtra ? monthlyPaymentValue : regularPayment).toFixed(2),
         principalPaid: principalPaid.toFixed(2),
         interestPaid: interestPaid.toFixed(2),
         remainingBalance: remainingBalance.toFixed(2),
       });
+      
+      // Early termination if loan is paid off
+      if (remainingBalance === 0) {
+        break;
+      }
     }
 
+    return schedule;
+  };
+
+  /**
+   * Generate standard amortization schedule
+   */
+  const generateAmortizationSchedule = () => {
+    const schedule = generateSchedule({ includeExtra: false });
     setAmortizationSchedule(schedule);
   };
 
-  // Generate Extra Amortization Schedule
+  /**
+   * Generate amortization schedule with extra payments
+   */
   const generateExtraAmortizationSchedule = () => {
-    if (!loanAmount || !numMonths || !annualInterestRate) {
-      return;
-    }
-    
-    const monthlyInterestRate = annualInterestRate / 100 / 12;
-    const numberOfPayments = numMonths;
-    const numerator = monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments);
-    const denominator = Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1;
-    const extraPrincipalValue = parseFloat(extraPrincipal) || 0;
-    const paymentFrequency = handlePaymentFrequencySelect();
-
-    let monthlyPaymentValue = loanAmount * (numerator / denominator) + extraPrincipalValue;
-    const totalAmount = (monthlyPaymentValue * numberOfPayments).toFixed(2);
-    setTotalAmount(totalAmount);
-
-    const schedule = [];
-    let remainingBalance = loanAmount;
-    let count;
-
-    for (let i = 1; i <= numMonths; i++) {
-      const interestPaid = remainingBalance * monthlyInterestRate;
-      let principalPaid = monthlyPaymentValue - interestPaid;
-      if (remainingBalance < principalPaid) {
-        principalPaid = remainingBalance;
-        monthlyPaymentValue = principalPaid + interestPaid; // Adjust monthly payment
-      }
-
-      remainingBalance -= principalPaid;
-      if (remainingBalance <= 0) {
-        remainingBalance = 0; // Set remaining balance to zero if it becomes negative
-      }
-      count = i;
-      const year = years[Math.floor((startMonth - 1 + i) / 12) % years.length];
-      if (
-        monthlyPaymentValue !== 0 ||
-        principalPaid !== 0 ||
-        interestPaid !== 0 ||
-        remainingBalance !== 0
-      ) {
-        schedule.push({
-          count,
-          month: months[(startMonth - 1 + i) % 12],
-          payment: monthlyPaymentValue.toFixed(2),
-          principalPaid: principalPaid.toFixed(2),
-          interestPaid: interestPaid.toFixed(2),
-          remainingBalance: remainingBalance.toFixed(2),
-        });
-      }
-    }
-
+    const schedule = generateSchedule({ includeExtra: true });
     setExtraAmortizationSchedule(schedule);
   };
   
@@ -203,12 +218,13 @@ function App() {
     setNumMonths("");
     setAnnualInterestRate("");
     setMonthlyPayment("");
-    setPrincipalAmount("");
-    setInterestRate("");
-    setSelectedMonth();
-    setSelectedYear("");
-    setStartMonth(new Date().getMonth() + 1);
-    setStartYear(new Date().getFullYear());
+
+
+
+
+    setStartDate(new Date());
+
+
     setAmortizationSchedule([]);
     setExtraPrincipal("");
     setTotalAmount(0);
@@ -244,6 +260,8 @@ function App() {
     generateExtraAmortizationSchedule,
     amortizationSchedule,
     extraAmortizationSchedule,
+    startDate,
+    setStartDate,
     
     // Loan-specific props
     downPayment,
@@ -260,20 +278,29 @@ function App() {
 
   return (
     <Router>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Dashboard {...pageProps} />} />
-            <Route path="calculator" element={<Calculator {...pageProps} />} />
-            <Route path="schedule" element={<Schedule {...pageProps} />} />
-            <Route path="reports" element={<Reports {...pageProps} />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="account" element={<Account />} />
-            <Route path="settings" element={<Profile />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        </Routes>
-      </AuthProvider>
+      <HelmetProvider>
+        <Helmet>
+          <html lang="en" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta name="theme-color" content="#1A73E8" />
+        </Helmet>
+        <DynamicSEO loanType={loanType} />
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<Dashboard {...pageProps} />} />
+              <Route path="calculator" element={<Calculator {...pageProps} />} />
+              <Route path="schedule" element={<Schedule {...pageProps} />} />
+              <Route path="reports" element={<Reports {...pageProps} />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="account" element={<Account />} />
+              <Route path="settings" element={<Profile />} />
+              <Route path="accessibility" element={<Accessibility />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </HelmetProvider>
     </Router>
   );
 }

@@ -8,6 +8,7 @@ import {
   signInWithPopup
 } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
+import { saveUserProfile, getUserProfile } from '../services/userService';
 
 // Create the authentication context
 const AuthContext = createContext();
@@ -18,7 +19,9 @@ export const useAuth = () => useContext(AuthContext);
 // Provider component that wraps your app and makes auth object available to any child component that calls useAuth()
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [authError, setAuthError] = useState("");
   
   // Register with Firebase
@@ -27,15 +30,20 @@ export function AuthProvider({ children }) {
       setAuthError("");
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
-      // Update the user profile with display name if provided
-      if (displayName) {
-        await updateProfile(userCredential.user, { displayName });
-      } else {
-        // Use part of email as name if no displayName provided
-        await updateProfile(userCredential.user, { 
-          displayName: email.split('@')[0]
-        });
-      }
+      // Use provided displayName or fallback to email username
+      const userDisplayName = displayName || email.split('@')[0];
+      
+      // Update the user profile with display name
+      await updateProfile(userCredential.user, { displayName: userDisplayName });
+      
+      // Create user profile in Firestore
+      await saveUserProfile(userCredential.user.uid, {
+        displayName: userDisplayName,
+        email,
+        phone: '',
+        accountType: 'Free',
+        company: 'Personal'
+      });
       
       return userCredential.user;
     } catch (error) {
@@ -61,6 +69,20 @@ export function AuthProvider({ children }) {
     try {
       setAuthError("");
       const result = await signInWithPopup(auth, googleProvider);
+      
+      // Check if user profile exists in Firestore, if not create one
+      const userProfile = await getUserProfile(result.user.uid);
+      
+      if (!userProfile) {
+        await saveUserProfile(result.user.uid, {
+          displayName: result.user.displayName || result.user.email.split('@')[0],
+          email: result.user.email,
+          phone: result.user.phoneNumber || '',
+          accountType: 'Free',
+          company: 'Personal'
+        });
+      }
+      
       return result.user;
     } catch (error) {
       console.error('Google sign-in error:', error);
@@ -92,10 +114,53 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Fetch user profile from Firestore
+  const fetchUserProfile = async (userId) => {
+    if (!userId) return null;
+    
+    try {
+      setProfileLoading(true);
+      const profile = await getUserProfile(userId);
+      setUserProfile(profile);
+      return profile;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+  
+  // Update user profile in Firestore
+  const updateUserProfileData = async (data) => {
+    if (!currentUser) return false;
+    
+    try {
+      setProfileLoading(true);
+      await saveUserProfile(currentUser.uid, data);
+      // Update local state
+      setUserProfile(prev => ({...prev, ...data}));
+      return true;
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
   // Listen for auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
+      
+      if (user) {
+        // Fetch user profile when user is authenticated
+        await fetchUserProfile(user.uid);
+      } else {
+        setUserProfile(null);
+      }
+      
       setLoading(false);
     });
 
@@ -104,12 +169,16 @@ export function AuthProvider({ children }) {
 
   const value = {
     currentUser,
+    userProfile,
     login,
     logout,
     register,
     signInWithGoogle,
     authError,
-    loading
+    loading,
+    profileLoading,
+    fetchUserProfile,
+    updateUserProfileData
   };
 
   return (

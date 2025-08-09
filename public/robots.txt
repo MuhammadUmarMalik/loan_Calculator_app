@@ -1,3 +1,46 @@
 # https://www.robotstxt.org/robotstxt.html
+# Loan Calculator Pro - Allow crawling of public content
 User-agent: *
-Disallow:
+Allow: /
+Allow: /calculator
+Allow: /schedule
+Allow: /reports
+Allow: /accessibility
+Allow: /calculator/mortgage-tips
+Allow: /calculator/auto-loan-guide
+Allow: /calculator/home-loan-resources
+Allow: /faq
+Allow: /help
+Allow: /loan-glossary
+
+# Sitemap and additional resources
+Sitemap: https://example.com/sitemap.xml
+
+# Specific rules for major search bots
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+# Block private/restricted paths from all bots
+User-agent: *
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /login
+Disallow: /register
+Disallow: /account/*/private
+Disallow: /profile/*/settings
+Disallow: /user/
+Disallow: /dashboard?token=

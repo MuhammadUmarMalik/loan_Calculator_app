@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { 
   ArrowTrendingDownIcon, 
   CalendarIcon, 
   BanknotesIcon, 
-  CurrencyDollarIcon,
   ChartPieIcon,
   ClockIcon,
   DocumentIcon,
@@ -33,6 +34,8 @@ const LoanInputForm = ({
   clearAllFields,
   generateAmortizationSchedule,
   generateExtraAmortizationSchedule,
+  startDate,
+  setStartDate,
   // Loan-specific props
   downPayment,
   setDownPayment,
@@ -111,7 +114,7 @@ const LoanInputForm = ({
     
     const errorMessage = validationFunction(value);
     setFormErrors(prev => ({...prev, [field]: errorMessage}));
-  }, []);
+  }, [validateDeviceModel, validateDownPayment, validateLoanAmount, validateNumMonths, validateInterestRate, validateTradeInValue, validatePropertyTax, validateHomeInsurance]);
   
   // Common term presets
   const termPresets = [
@@ -126,72 +129,72 @@ const LoanInputForm = ({
   ];
   
   // Validation functions
-  const validateLoanAmount = (value) => {
+  const validateLoanAmount = useCallback((value) => {
     if (!value) return "Loan amount is required";
     
     const amount = parseFloat(value);
     if (isNaN(amount) || amount <= 0) return "Enter a valid positive number";
     if (amount > 100000000) return "Amount exceeds maximum (100M)";
     return "";
-  };
+  }, []);
   
-  const validateNumMonths = (value) => {
+  const validateNumMonths = useCallback((value) => {
     if (!value) return "Loan term is required";
     
     const months = parseInt(value);
     if (isNaN(months) || months <= 0) return "Enter valid number of months";
     if (months > 600) return "Term cannot exceed 600 months (50 years)";
     return "";
-  };
+  }, []);
   
-  const validateInterestRate = (value) => {
+  const validateInterestRate = useCallback((value) => {
     if (!value) return "Interest rate is required";
     
     const rate = parseFloat(value);
     if (isNaN(rate) || rate < 0) return "Enter valid interest rate";
     if (rate > 100) return "Rate cannot exceed 100%";
     return "";
-  };
+  }, []);
   
   // Loan-specific validation functions
-  const validateDownPayment = (value) => {
+  const validateDownPayment = useCallback((value) => {
     if (!value) return "";  // Down payment is optional
     
     const amount = parseFloat(value);
     if (isNaN(amount) || amount < 0) return "Enter a valid positive number";
     if (loanAmount && amount > parseFloat(loanAmount)) return "Down payment cannot exceed loan amount";
     return "";
-  };
+  }, [loanAmount]);
   
-  const validateTradeInValue = (value) => {
+  const validateTradeInValue = useCallback((value) => {
     if (!value) return "";  // Trade-in value is optional
     
     const amount = parseFloat(value);
     if (isNaN(amount) || amount < 0) return "Enter a valid positive number";
     return "";
-  };
+  }, []);
   
-  const validatePropertyTax = (value) => {
+  const validatePropertyTax = useCallback((value) => {
     if (!value) return "";  // Property tax is optional
     
     const amount = parseFloat(value);
     if (isNaN(amount) || amount < 0) return "Enter a valid positive number";
     if (amount > 10) return "Property tax rate seems too high";
     return "";
-  };
+  }, []);
   
-  const validateHomeInsurance = (value) => {
+  const validateHomeInsurance = useCallback((value) => {
     if (!value) return "";  // Home insurance is optional
     
     const amount = parseFloat(value);
     if (isNaN(amount) || amount < 0) return "Enter a valid positive number";
     return "";
-  };
+  }, []);
   
-  const validateDeviceModel = (value) => {
+  const validateDeviceModel = useCallback((value) => {
     if (loanType === "mobile" && !value) return "Device model is required";
     return "";
-  };
+  }, [loanType]);
   
   // Effect to validate fields when touched
   useEffect(() => {
@@ -680,6 +683,27 @@ const LoanInputForm = ({
                 )}
               </div>
             )}
+
+            <div className="form-group">
+              <label className="block text-xs sm:text-sm font-medium text-text-secondary mb-1" htmlFor="startDate">
+                Start Date
+              </label>
+              <div className="relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                </div>
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  dateFormat="MM/dd/yyyy"
+                  className="pl-8 sm:pl-10 input-field block w-full border-gray-300 focus:ring-primary focus:border-primary"
+                  placeholderText="Select start date"
+                  showMonthDropdown
+                  showYearDropdown
+                  dropdownMode="select"
+                />
+              </div>
+            </div>
 
             <div className="form-group">
               <label className="block text-xs sm:text-sm font-medium text-text-secondary mb-1" htmlFor="numMonths">

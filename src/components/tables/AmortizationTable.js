@@ -17,6 +17,13 @@ const AmortizationTable = ({ schedule, title, isExtra = false }) => {
     let sortableItems = [...schedule];
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
+        // Handle date values
+        if (sortConfig.key === 'date') {
+          const dateA = a.date ? new Date(a.date).getTime() : 0;
+          const dateB = b.date ? new Date(b.date).getTime() : 0;
+          return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA;
+        }
+        
         // Handle numeric values
         if (!isNaN(parseFloat(a[sortConfig.key])) && !isNaN(parseFloat(b[sortConfig.key]))) {
           return sortConfig.direction === 'asc' 
@@ -92,9 +99,9 @@ const AmortizationTable = ({ schedule, title, isExtra = false }) => {
                   </th>
                   <th 
                     className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm cursor-pointer"
-                    onClick={() => requestSort('month')}
+                    onClick={() => requestSort('date')}
                   >
-                    Month {getSortIcon('month')}
+                    Date {getSortIcon('date')}
                   </th>
                   <th 
                     className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm cursor-pointer"
@@ -129,7 +136,9 @@ const AmortizationTable = ({ schedule, title, isExtra = false }) => {
                     className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-secondary transition-colors text-xs sm:text-sm`}
                   >
                     <td className="px-2 sm:px-4 py-1.5 sm:py-2">{entry.count}</td>
-                    <td className="px-2 sm:px-4 py-1.5 sm:py-2">{entry.month}</td>
+                    <td className="px-2 sm:px-4 py-1.5 sm:py-2">
+                      {entry.date ? new Date(entry.date).toLocaleDateString() : `${entry.month}`}
+                    </td>
                     <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-right">${entry.payment}</td>
                     <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-right">${entry.principalPaid}</td>
                     <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-right">${entry.interestPaid}</td>

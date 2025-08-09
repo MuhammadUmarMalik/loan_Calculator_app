@@ -2,8 +2,7 @@ import React from 'react';
 import { 
   CurrencyDollarIcon, 
   ClockIcon, 
-  CalculatorIcon, 
-  ChartBarIcon,
+  CalculatorIcon,
   HomeIcon,
   TruckIcon,
   DevicePhoneMobileIcon,

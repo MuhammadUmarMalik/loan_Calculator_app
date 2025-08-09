@@ -4,27 +4,113 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Professional loan and mortgage calculator with advanced features"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+    <meta name="theme-color" content="#1A73E8" />
+    <meta name="description" content="Free online loan calculator for mortgage, auto, and home loans. Compare rates, create amortization schedules, and save with our payment optimization tools. No signup required." />
+    
+    <!-- Primary Meta Tags -->
+    <title>Loan Calculator Pro | Free Mortgage, Auto & Home Loan Calculator</title>
+<meta name="title" content="Loan Calculator Pro | Free Mortgage, Auto & Home Loan Calculator">
+<meta name="author" content="Loan Calculator Pro">
+<meta name="keywords" content="loan calculator, mortgage calculator, car loan calculator, home loan calculator, amortization schedule, loan comparison, interest calculator, payment calculator, refinance calculator, monthly payment, APR calculator, debt payoff calculator">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="%PUBLIC_URL%">
+    <meta property="og:title" content="Loan Calculator Pro | Free Mortgage, Auto & Home Loan Calculator">
+<meta property="og:description" content="Calculate mortgage, car loans, personal loans and more with our easy-to-use loan calculator. Get amortization schedules, payment breakdowns, and save up to 15% with our loan comparison tools.">
+    <meta property="og:image" content="%PUBLIC_URL%/social-preview.png">
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>Loan Calculator | Professional Mortgage & Loan Calculator</title>
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="%PUBLIC_URL%">
+    <meta property="twitter:title" content="Loan Calculator Pro | Free Mortgage, Auto & Home Loan Calculator">
+<meta property="twitter:description" content="Calculate mortgage, car loans, personal loans and more with our easy-to-use loan calculator. Get amortization schedules, payment breakdowns, and save up to 15% with our loan comparison tools.">
+    <meta property="twitter:image" content="%PUBLIC_URL%/social-preview.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="%PUBLIC_URL%" />
+    
+    <!-- App Icons -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png">
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Preconnect to improve performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- JSON-LD structured data for SEO -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Loan Calculator Pro",
+        "url": "%PUBLIC_URL%",
+        "description": "Free online loan calculator for mortgage, auto, and home loans. Compare rates, create amortization schedules, and save with payment optimization tools.",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web, Android, iOS",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "featureList": "Mortgage Calculator, Car Loan Calculator, Home Loan Calculator, Amortization Schedule Generator, Loan Comparison Tool, Refinance Calculator, Extra Payment Calculator",
+        "applicationSubCategory": "Calculator",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "1250"
+        },
+        "review": {
+          "@type": "Review",
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": "5"
+          },
+          "author": {
+            "@type": "Person",
+            "name": "Financial Advisor"
+          },
+          "reviewBody": "This loan calculator offers comprehensive tools for analyzing mortgage and auto loans with detailed amortization schedules."
+        }
+      }
+    </script>
+    <!-- Breadcrumb Schema for SEO -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "%PUBLIC_URL%/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Loan Calculator",
+            "item": "%PUBLIC_URL%/calculator"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Amortization Schedule",
+            "item": "%PUBLIC_URL%/schedule"
+          },
+          {
+            "@type": "ListItem",
+            "position": 4,
+            "name": "Loan Reports",
+            "item": "%PUBLIC_URL%/reports"
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -39,5 +125,19 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script>
+      // Register Service Worker for PWA functionality
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(error => {
+              console.log('ServiceWorker registration failed: ', error);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

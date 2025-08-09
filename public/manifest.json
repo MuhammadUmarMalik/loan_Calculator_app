@@ -1,11 +1,22 @@
 {
-  "short_name": "Loan Calc",
-  "name": "Professional Loan Calculator",
+  "short_name": "Loan Calculator",
+  "name": "Loan Calculator Pro",
+  "description": "Calculate and compare mortgage, car, home, and personal loans with detailed amortization schedules and reports",
   "icons": [
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
     },
     {
       "src": "logo192.png",
@@ -16,10 +27,82 @@
       "src": "logo512.png",
       "type": "image/png",
       "sizes": "512x512"
+    },
+    {
+      "src": "maskable_icon.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    },
+    {
+      "src": "maskable_icon_x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "theme_color": "#1A73E8",
-  "background_color": "#F1F5F9"
+  "background_color": "#ffffff",
+  "orientation": "any",
+  "categories": ["finance", "utilities", "productivity", "tools"],
+  "screenshots": [
+    {
+      "src": "screenshots/desktop1.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "screenshots/desktop2.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "screenshots/mobile1.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "screenshots/mobile2.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Calculate Mortgage",
+      "short_name": "Mortgage",
+      "description": "Calculate mortgage loan payments and amortization schedule",
+      "url": "/?loanType=mortgage",
+      "icons": [{ "src": "icons/mortgage.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Calculate Car Loan",
+      "short_name": "Car Loan",
+      "description": "Calculate car loan payments and amortization schedule",
+      "url": "/?loanType=car",
+      "icons": [{ "src": "icons/car.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Calculate Home Loan",
+      "short_name": "Home Loan",
+      "description": "Calculate home loan payments and amortization schedule",
+      "url": "/?loanType=house",
+      "icons": [{ "src": "icons/house.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "lang": "en-US",
+  "dir": "ltr",
+  "iarc_rating_id": "",
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
 }

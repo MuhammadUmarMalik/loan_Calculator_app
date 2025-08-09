@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AmortizationTable from '../components/tables/AmortizationTable';
 import LoanBalanceChart from '../components/charts/LoanBalanceChart';
-import { DocumentArrowDownIcon, ChartPieIcon, ListBulletIcon, TableCellsIcon } from '@heroicons/react/24/outline';
+import { ChartPieIcon, ListBulletIcon, TableCellsIcon } from '@heroicons/react/24/outline';
 import AmortizationSchedule from '../AmortizationSchedule';
 
 const Schedule = ({

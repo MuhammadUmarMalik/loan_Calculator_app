@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   HomeIcon, 
@@ -8,14 +8,20 @@ import {
   Cog6ToothIcon,
   UserCircleIcon,
   ArrowLeftOnRectangleIcon,
-  Bars3Icon,
-  XMarkIcon
+  XMarkIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 
-const Sidebar = () => {
+/**
+ * Sidebar component with responsive design and theme support
+ * @param {Object} props - Component props
+ * @param {boolean} props.isOpen - Whether sidebar is open on mobile
+ * @param {Function} props.setIsOpen - Function to set sidebar open state
+ * @param {string} props.theme - Current theme (light/dark)
+ */
+const Sidebar = ({ isOpen, setIsOpen, theme = 'light' }) => {
   const { currentUser, logout } = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const navigation = [
     { name: 'Dashboard', to: '/', icon: HomeIcon },
@@ -27,42 +33,48 @@ const Sidebar = () => {
   const accountMenu = [
     { name: 'Settings', to: '/settings', icon: Cog6ToothIcon },
     { name: 'Profile', to: '/profile', icon: UserCircleIcon },
+    { name: 'Account', to: '/account', icon: ShieldCheckIcon },
   ];
 
-  // Toggle mobile menu
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+  // Close mobile menu
+  const closeMobileMenu = () => {
+    setIsOpen(false);
   };
 
-  // Active link style
-  const activeClassName = "bg-blue-700 text-white";
-  const inactiveClassName = "text-blue-100 hover:bg-blue-700 hover:text-white";
+  // Active link style - based on theme
+  const getActiveClassName = (isActive) => {
+    if (isActive) {
+      return theme === 'dark' 
+        ? 'bg-blue-800 text-white' 
+        : 'bg-blue-600 text-white';
+    } else {
+      return theme === 'dark'
+        ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
+        : 'text-blue-100 hover:bg-blue-700 hover:text-white';
+    }
+  };
+  
+  // Get the sidebar background color based on theme
+  const getSidebarBgColor = () => {
+    return theme === 'dark' ? 'bg-gray-900' : 'bg-primary';
+  };
+
+  // Get border colors based on theme
+  const getBorderColor = () => {
+    return theme === 'dark' ? 'border-gray-700' : 'border-blue-700';
+  };
   
   return (
     <>
-      {/* Mobile menu button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <button 
-          onClick={toggleMobileMenu}
-          className="p-2 rounded-md bg-primary text-white hover:bg-blue-700 shadow-md"
-          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-        >
-          {isMobileMenuOpen ? 
-            <XMarkIcon className="h-6 w-6" /> : 
-            <Bars3Icon className="h-6 w-6" />
-          }
-        </button>
-      </div>
-
-      {/* Mobile sidebar */}
-      {isMobileMenuOpen && (
+      {/* Mobile sidebar overlay */}
+      {isOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={toggleMobileMenu}></div>
-          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-primary">
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity" onClick={closeMobileMenu}></div>
+          <div className={`relative flex-1 flex flex-col max-w-xs w-full transition-all transform duration-300 ease-in-out ${getSidebarBgColor()}`}>
             <div className="absolute top-0 right-0 -mr-12 pt-2">
               <button
                 className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-                onClick={toggleMobileMenu}
+                onClick={closeMobileMenu}
                 aria-label="Close sidebar"
               >
                 <XMarkIcon className="h-6 w-6 text-white" />
@@ -77,24 +89,41 @@ const Sidebar = () => {
                   <NavLink
                     key={item.name}
                     to={item.to}
-                    onClick={toggleMobileMenu}
+                    onClick={closeMobileMenu}
                     className={({ isActive }) => 
-                      `group flex items-center px-3 py-2.5 text-sm font-medium rounded-md ${
-                        isActive ? activeClassName : inactiveClassName
-                      }`
+                      `group flex items-center px-3 py-2.5 text-sm font-medium rounded-md ${getActiveClassName(isActive)}`
                     }
                   >
                     <item.icon className="mr-3 h-5 w-5 flex-shrink-0" aria-hidden="true" />
                     {item.name}
                   </NavLink>
                 ))}
+                
+                <div className={`pt-4 mt-4 border-t ${getBorderColor()}`}>
+                  <p className={`px-3 text-xs font-semibold ${theme === 'dark' ? 'text-gray-400' : 'text-blue-300'} uppercase tracking-wider`}>
+                    Account
+                  </p>
+                  {accountMenu.map((item) => (
+                    <NavLink
+                      key={item.name}
+                      to={item.to}
+                      onClick={closeMobileMenu}
+                      className={({ isActive }) => 
+                        `group flex items-center px-3 py-2.5 text-sm font-medium rounded-md ${getActiveClassName(isActive)}`
+                      }
+                    >
+                      <item.icon className="mr-3 h-5 w-5 flex-shrink-0" aria-hidden="true" />
+                      {item.name}
+                    </NavLink>
+                  ))}
+                </div>
               </nav>
             </div>
-            <div className="flex-shrink-0 p-4 border-t border-blue-700">
+            <div className={`flex-shrink-0 p-4 border-t ${getBorderColor()}`}>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="h-8 w-8 rounded-full bg-blue-200 flex items-center justify-center">
-                    <UserCircleIcon className="h-6 w-6 text-blue-600" />
+                  <div className={`h-8 w-8 rounded-full ${theme === 'dark' ? 'bg-gray-700' : 'bg-blue-200'} flex items-center justify-center`}>
+                    <UserCircleIcon className={`h-6 w-6 ${theme === 'dark' ? 'text-gray-300' : 'text-blue-600'}`} />
                   </div>
                 </div>
                 <div className="ml-3">
@@ -102,7 +131,11 @@ const Sidebar = () => {
                 </div>
                 <button
                   onClick={logout}
-                  className="ml-auto p-1 rounded-full text-blue-200 hover:bg-blue-700 hover:text-white"
+                  className={`ml-auto p-1 rounded-full ${
+                    theme === 'dark' 
+                      ? 'text-gray-400 hover:bg-gray-700 hover:text-white' 
+                      : 'text-blue-200 hover:bg-blue-700 hover:text-white'
+                  }`}
                 >
                   <ArrowLeftOnRectangleIcon className="h-5 w-5" />
                 </button>
@@ -113,7 +146,7 @@ const Sidebar = () => {
       )}
       
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:pt-5 lg:pb-4 lg:bg-primary lg:overflow-y-auto">
+      <div className={`hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:pt-5 lg:pb-4 lg:overflow-y-auto transition-colors duration-300 ${getSidebarBgColor()}`}>
         <div className="flex items-center px-6 mb-8">
           <h1 className="text-xl font-bold text-white">Loan Calculator</h1>
         </div>
@@ -123,9 +156,7 @@ const Sidebar = () => {
               key={item.name}
               to={item.to}
               className={({ isActive }) => 
-                `group flex items-center px-3 py-2.5 text-sm font-medium rounded-md ${
-                  isActive ? activeClassName : inactiveClassName
-                }`
+                `group flex items-center px-3 py-2.5 text-sm font-medium rounded-md ${getActiveClassName(isActive)}`
               }
             >
               <item.icon className="mr-3 h-5 w-5 flex-shrink-0" aria-hidden="true" />
@@ -133,8 +164,8 @@ const Sidebar = () => {
             </NavLink>
           ))}
 
-          <div className="pt-4 mt-4 border-t border-blue-700">
-            <p className="px-3 text-xs font-semibold text-blue-300 uppercase tracking-wider">
+          <div className={`pt-4 mt-4 border-t ${getBorderColor()}`}>
+            <p className={`px-3 text-xs font-semibold ${theme === 'dark' ? 'text-gray-400' : 'text-blue-300'} uppercase tracking-wider`}>
               Account
             </p>
             {accountMenu.map((item) => (
@@ -142,9 +173,7 @@ const Sidebar = () => {
                 key={item.name}
                 to={item.to}
                 className={({ isActive }) => 
-                  `group flex items-center px-3 py-2.5 text-sm font-medium rounded-md ${
-                    isActive ? activeClassName : inactiveClassName
-                  }`
+                  `group flex items-center px-3 py-2.5 text-sm font-medium rounded-md ${getActiveClassName(isActive)}`
                 }
               >
                 <item.icon className="mr-3 h-5 w-5 flex-shrink-0" aria-hidden="true" />
@@ -153,20 +182,26 @@ const Sidebar = () => {
             ))}
           </div>
         </nav>
-        <div className="flex-shrink-0 p-4 border-t border-blue-700">
+        <div className={`flex-shrink-0 p-4 border-t ${getBorderColor()}`}>
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="h-8 w-8 rounded-full bg-blue-200 flex items-center justify-center">
-                <UserCircleIcon className="h-6 w-6 text-blue-600" />
+              <div className={`h-8 w-8 rounded-full ${theme === 'dark' ? 'bg-gray-700' : 'bg-blue-200'} flex items-center justify-center`}>
+                <UserCircleIcon className={`h-6 w-6 ${theme === 'dark' ? 'text-gray-300' : 'text-blue-600'}`} />
               </div>
             </div>
             <div className="ml-3">
               <p className="text-sm font-medium text-white">{currentUser?.displayName || 'User'}</p>
+              <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-blue-200'}`}>Premium Account</p>
             </div>
             <button
               onClick={logout}
-              className="ml-auto p-1 rounded-full text-blue-200 hover:bg-blue-700 hover:text-white"
+              className={`ml-auto p-1 rounded-full ${
+                theme === 'dark' 
+                  ? 'text-gray-400 hover:bg-gray-700 hover:text-white' 
+                  : 'text-blue-200 hover:bg-blue-700 hover:text-white'
+              }`}
               title="Sign out"
+              aria-label="Sign out"
             >
               <ArrowLeftOnRectangleIcon className="h-5 w-5" />
             </button>

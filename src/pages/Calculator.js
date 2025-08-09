@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import LoanInputForm from '../components/inputs/LoanInputForm';
 import SummaryCard from '../components/results/SummaryCard';
+import LoanComparison from '../components/comparison/LoanComparison';
 import { 
   HomeIcon,
   TruckIcon,
   DevicePhoneMobileIcon,
-  BuildingLibraryIcon
+  BuildingLibraryIcon,
+  ChartBarSquareIcon
 } from '@heroicons/react/24/outline';
 
 const Calculator = ({
@@ -27,6 +29,7 @@ const Calculator = ({
   generateAmortizationSchedule,
   generateExtraAmortizationSchedule,
   totalAmount,
+  startDate,
   // Loan-specific props
   downPayment,
   setDownPayment,
@@ -39,6 +42,7 @@ const Calculator = ({
   deviceModel,
   setDeviceModel
 }) => {
+  const [showComparison, setShowComparison] = useState(false);
   // Get calculator title based on loan type
   const getCalculatorTitle = () => {
     switch(loanType) {
@@ -76,8 +80,35 @@ const Calculator = ({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-6">
-        {getCalculatorTitle()}
+        <div className="flex items-center">
+          {getCalculatorTitle()}
+        </div>
+        <button
+          onClick={() => setShowComparison(!showComparison)}
+          className={`flex items-center px-3 py-1.5 text-sm rounded-lg ${
+            showComparison 
+              ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' 
+              : 'bg-primary text-white hover:bg-primary-dark'
+          } transition-colors`}
+        >
+          <ChartBarSquareIcon className="h-4 w-4 mr-1.5" />
+          {showComparison ? 'Hide Comparison' : 'Compare Loans'}
+        </button>
       </div>
+      
+      {showComparison && (
+        <div className="card shadow-lg border border-gray-100 mb-6">
+          <LoanComparison
+            loanType={loanType}
+            loanAmount={loanAmount}
+            numMonths={numMonths}
+            annualInterestRate={annualInterestRate}
+            monthlyPayment={monthlyPayment}
+            totalAmount={totalAmount}
+            startDate={startDate}
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left column - Input form */}
