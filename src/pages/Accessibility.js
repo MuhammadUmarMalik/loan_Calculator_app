@@ -13,7 +13,7 @@ const Accessibility = () => {
         <meta name="description" content="Our commitment to accessibility and inclusivity for all users of our loan calculator app" />
       </Helmet>
 
-      <div className="prose dark:prose-invert max-w-none">
+      <div className="prose max-w-none">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6">Accessibility Statement</h1>
         
         <p className="mb-4">
@@ -29,7 +29,6 @@ const Accessibility = () => {
           <li>Screen Reader Support: Our app is designed to work with screen readers like NVDA, JAWS, and VoiceOver</li>
           <li>Text Resizing: Content can be resized up to 200% without loss of functionality</li>
           <li>Color Contrast: We maintain a minimum contrast ratio of 4.5:1 for text content</li>
-          <li>Dark Mode: A dark theme is available to reduce eye strain and accommodate light sensitivity</li>
           <li>Focus Indicators: Visible focus indicators help keyboard users navigate</li>
           <li>Skip Links: Skip navigation links allow keyboard users to bypass repetitive content</li>
           <li>ARIA Attributes: We use ARIA roles and properties to enhance accessibility</li>
@@ -70,8 +69,8 @@ const Accessibility = () => {
         </p>
         
         <ul className="list-disc pl-6 mb-6 space-y-2">
-          <li>Email: <a href="mailto:accessibility@loancalculatorpro.com" className="text-primary dark:text-blue-400">accessibility@loancalculatorpro.com</a></li>
-          <li>Phone: <a href="tel:+18001234567" className="text-primary dark:text-blue-400">1-800-123-4567</a></li>
+          <li>Email: <a href="mailto:accessibility@loancalculatorpro.com" className="text-primary">accessibility@loancalculatorpro.com</a></li>
+          <li>Phone: <a href="tel:+18001234567" className="text-primary">1-800-123-4567</a></li>
         </ul>
         
         <h2 className="text-xl font-semibold mt-6 mb-3">Assessment Approach</h2>

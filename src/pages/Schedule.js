@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AmortizationTable from '../components/tables/AmortizationTable';
 import LoanBalanceChart from '../components/charts/LoanBalanceChart';
 import { ChartPieIcon, ListBulletIcon, TableCellsIcon } from '@heroicons/react/24/outline';
@@ -15,6 +16,14 @@ const Schedule = ({
 }) => {
   const [viewMode, setViewMode] = useState('table');
   const [selectedSchedule, setSelectedSchedule] = useState('regular');
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state && location.state.selected) {
+      setSelectedSchedule(location.state.selected === 'extra' ? 'extra' : 'regular');
+    }
+  }, [location.state]);
 
   const currentSchedule = selectedSchedule === 'regular' 
     ? amortizationSchedule 
@@ -82,7 +91,7 @@ const Schedule = ({
           <h2 className="text-xl font-semibold text-gray-600 mb-2">No Schedule Available</h2>
           <p className="text-gray-500 mb-6">Please calculate a loan first to view the amortization schedule.</p>
           <button
-            onClick={() => window.location.href = '/calculator'}
+            onClick={() => navigate('/calculator')}
             className="bg-primary hover:bg-blue-600 text-white px-6 py-2 rounded-md transition-colors"
           >
             Go to Calculator

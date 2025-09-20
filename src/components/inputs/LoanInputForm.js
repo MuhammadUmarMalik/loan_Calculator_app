@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   ArrowTrendingDownIcon, 
   CalendarIcon, 
@@ -68,6 +69,7 @@ const LoanInputForm = ({
     deviceModel: false
   });
   const frequencyOptions = ['monthly', 'quarterly', 'semi-annually', 'annually'];
+  const navigate = useNavigate();
   
   // Loan type options
   const loanTypeOptions = [
@@ -434,7 +436,7 @@ const LoanInputForm = ({
                   placeholder="Enter loan amount"
                   value={loanAmount}
                   onChange={handleLoanAmountChange}
-                  className={`pl-7 input-field block w-full transition duration-200 ${formErrors.loanAmount ? 'border-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 focus:ring-red-200 dark:focus:ring-red-800' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
+                  className={`pl-7 input-field block w-full transition duration-200 ${formErrors.loanAmount ? 'border-red-500 bg-red-50 focus:ring-red-200' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
                   aria-invalid={formErrors.loanAmount ? "true" : "false"}
                   aria-describedby={formErrors.loanAmount ? "loanAmount-error" : ""}
                 />
@@ -519,7 +521,7 @@ const LoanInputForm = ({
                       placeholder="Enter down payment"
                       value={downPayment}
                       onChange={handleDownPaymentChange}
-                      className={`pl-7 input-field block w-full transition duration-200 ${formErrors.downPayment ? 'border-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 focus:ring-red-200 dark:focus:ring-red-800' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
+                      className={`pl-7 input-field block w-full transition duration-200 ${formErrors.downPayment ? 'border-red-500 bg-red-50 focus:ring-red-200' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
                       aria-invalid={formErrors.downPayment ? "true" : "false"}
                       aria-describedby={formErrors.downPayment ? "downPayment-error" : ""}
                     />
@@ -545,7 +547,7 @@ const LoanInputForm = ({
                       placeholder="Enter trade-in value"
                       value={tradeInValue}
                       onChange={handleTradeInValueChange}
-                      className={`pl-7 input-field block w-full transition duration-200 ${formErrors.tradeInValue ? 'border-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 focus:ring-red-200 dark:focus:ring-red-800' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
+                      className={`pl-7 input-field block w-full transition duration-200 ${formErrors.tradeInValue ? 'border-red-500 bg-red-50 focus:ring-red-200' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
                       aria-invalid={formErrors.tradeInValue ? "true" : "false"}
                       aria-describedby={formErrors.tradeInValue ? "tradeInValue-error" : ""}
                     />
@@ -576,7 +578,7 @@ const LoanInputForm = ({
                       placeholder="Enter down payment"
                       value={downPayment}
                       onChange={handleDownPaymentChange}
-                      className={`pl-7 input-field block w-full transition duration-200 ${formErrors.downPayment ? 'border-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 focus:ring-red-200 dark:focus:ring-red-800' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
+                      className={`pl-7 input-field block w-full transition duration-200 ${formErrors.downPayment ? 'border-red-500 bg-red-50 focus:ring-red-200' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
                       aria-invalid={formErrors.downPayment ? "true" : "false"}
                       aria-describedby={formErrors.downPayment ? "downPayment-error" : ""}
                     />
@@ -600,7 +602,7 @@ const LoanInputForm = ({
                       placeholder="Annual property tax rate"
                       value={propertyTax}
                       onChange={handlePropertyTaxChange}
-                      className={`input-field pr-8 block w-full transition duration-200 ${formErrors.propertyTax ? 'border-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 focus:ring-red-200 dark:focus:ring-red-800' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
+                      className={`input-field pr-8 block w-full transition duration-200 ${formErrors.propertyTax ? 'border-red-500 bg-red-50 focus:ring-red-200' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
                       aria-invalid={formErrors.propertyTax ? "true" : "false"}
                       aria-describedby={formErrors.propertyTax ? "propertyTax-error" : ""}
                     />
@@ -629,7 +631,7 @@ const LoanInputForm = ({
                       placeholder="Monthly insurance cost"
                       value={homeInsurance}
                       onChange={handleHomeInsuranceChange}
-                      className={`pl-7 input-field block w-full transition duration-200 ${formErrors.homeInsurance ? 'border-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 focus:ring-red-200 dark:focus:ring-red-800' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
+                      className={`pl-7 input-field block w-full transition duration-200 ${formErrors.homeInsurance ? 'border-red-500 bg-red-50 focus:ring-red-200' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
                       aria-invalid={formErrors.homeInsurance ? "true" : "false"}
                       aria-describedby={formErrors.homeInsurance ? "homeInsurance-error" : ""}
                     />
@@ -655,7 +657,7 @@ const LoanInputForm = ({
                   placeholder="Enter device model (e.g., iPhone 14 Pro)"
                   value={deviceModel}
                   onChange={handleDeviceModelChange}
-                  className={`input-field block w-full transition duration-200 ${formErrors.deviceModel ? 'border-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 focus:ring-red-200 dark:focus:ring-red-800' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
+                  className={`input-field block w-full transition duration-200 ${formErrors.deviceModel ? 'border-red-500 bg-red-50 focus:ring-red-200' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
                   aria-invalid={formErrors.deviceModel ? "true" : "false"}
                   aria-describedby={formErrors.deviceModel ? "deviceModel-error" : ""}
                 />
@@ -707,7 +709,7 @@ const LoanInputForm = ({
                     placeholder="Months"
                     value={numMonths}
                     onChange={handleNumMonthsChange}
-                    className={`pl-8 sm:pl-10 input-field block w-full transition duration-200 ${formErrors.numMonths ? 'border-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 focus:ring-red-200 dark:focus:ring-red-800' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
+                    className={`pl-8 sm:pl-10 input-field block w-full transition duration-200 ${formErrors.numMonths ? 'border-red-500 bg-red-50 focus:ring-red-200' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
                     aria-invalid={formErrors.numMonths ? "true" : "false"}
                     aria-describedby={formErrors.numMonths ? "numMonths-error" : ""}
                   />
@@ -748,7 +750,7 @@ const LoanInputForm = ({
                   placeholder="Enter interest rate"
                   value={annualInterestRate}
                   onChange={handleInterestRateChange}
-                  className={`input-field pr-12 block w-full transition duration-200 ${formErrors.annualInterestRate ? 'border-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 focus:ring-red-200 dark:focus:ring-red-800' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
+                  className={`input-field pr-12 block w-full transition duration-200 ${formErrors.annualInterestRate ? 'border-red-500 bg-red-50 focus:ring-red-200' : 'border-gray-300 focus:ring-primary focus:border-primary'}`}
                   aria-invalid={formErrors.annualInterestRate ? "true" : "false"}
                   aria-describedby={formErrors.annualInterestRate ? "interestRate-error" : ""}
                 />
@@ -874,14 +876,14 @@ const LoanInputForm = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mt-4 sm:mt-6">
               <button 
-                onClick={generateAmortizationSchedule} 
+                onClick={() => { generateAmortizationSchedule(); navigate('/schedule', { state: { selected: 'regular' } }); }} 
                 className="btn-primary flex items-center justify-center py-2 sm:py-2.5 text-xs sm:text-sm"
               >
                 <DocumentIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
                 View Regular Schedule
               </button>
               <button 
-                onClick={generateExtraAmortizationSchedule} 
+                onClick={() => { generateExtraAmortizationSchedule(); navigate('/schedule', { state: { selected: 'extra' } }); }} 
                 className="btn-success flex items-center justify-center py-2 sm:py-2.5 text-xs sm:text-sm"
               >
                 <ArrowTrendingDownIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />

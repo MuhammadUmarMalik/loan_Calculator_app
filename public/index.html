@@ -126,17 +126,30 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
     <script>
-      // Register Service Worker for PWA functionality
+      // Register Service Worker for PWA functionality only outside localhost to avoid dev reload loops
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js')
-            .then(registration => {
-              console.log('ServiceWorker registration successful with scope: ', registration.scope);
-            })
-            .catch(error => {
-              console.log('ServiceWorker registration failed: ', error);
-            });
-        });
+        const isLocalhost = Boolean(
+          window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1' ||
+          window.location.hostname.endsWith('.local')
+        );
+
+        if (!isLocalhost) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+              .then(registration => {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+              })
+              .catch(error => {
+                console.log('ServiceWorker registration failed: ', error);
+              });
+          });
+        } else {
+          // Ensure no service worker controls the page during development
+          navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(reg => reg.unregister());
+          });
+        }
       }
     </script>
   </body>
