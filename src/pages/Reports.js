@@ -119,10 +119,13 @@ const Reports = ({
       ]
     );
 
-    // Footer note
+    // Footer note + contact
     doc.setFontSize(9);
     doc.setTextColor(gray600[0], gray600[1], gray600[2]);
-    doc.text('This report is for informational purposes only.', pageWidth / 2, 295, { align: 'center' });
+    doc.text('This report is for informational purposes only.', pageWidth / 2, 288, { align: 'center' });
+    doc.setTextColor(primary[0], primary[1], primary[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Website: www.umarmalik-dev.com   |   LinkedIn: umarmalik-dev   |   GitHub: muhammadumarmalik   |   Email: umarmalik.cs711@gmail.com', pageWidth / 2, 295, { align: 'center' });
 
     doc.save('loan-summary.pdf');
   };
@@ -204,10 +207,13 @@ const Reports = ({
     doc.setFont('helvetica', 'bold');
     doc.text(`Interest Savings: ${currency(interestSavings)}    •    Time Savings: ${Math.floor(timeSavings / 12)} years, ${timeSavings % 12} months`, pageWidth / 2, stripY + 12, { align: 'center' });
 
-    // Footer
+    // Footer + contact
     doc.setFontSize(9);
     doc.setTextColor(gray600[0], gray600[1], gray600[2]);
-    doc.text('This report is for informational purposes only.', pageWidth / 2, 295, { align: 'center' });
+    doc.text('This report is for informational purposes only.', pageWidth / 2, 288, { align: 'center' });
+    doc.setTextColor(primary[0], primary[1], primary[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Website: www.umarmalik-dev.com   |   LinkedIn: umarmalik-dev   |   GitHub: muhammadumarmalik   |   Email: umarmalik.cs711@gmail.com', pageWidth / 2, 295, { align: 'center' });
 
     doc.save('loan-comparison.pdf');
   };
