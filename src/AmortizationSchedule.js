@@ -1,11 +1,5 @@
 import React from "react";
-import { Document, Page, Text, View, StyleSheet, PDFDownloadLink, Font } from "@react-pdf/renderer";
-
-// Register a custom font for better rendering
-Font.register({
-  family: 'Roboto',
-  src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-light-webfont.ttf',
-});
+import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from "@react-pdf/renderer";
 
 // Styles for the PDF document
 const styles = StyleSheet.create({
@@ -13,7 +7,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: '#FFFFFF',
     padding: 30,
-    fontFamily: 'Roboto',
   },
   header: {
     marginBottom: 20,
@@ -92,6 +85,14 @@ const styles = StyleSheet.create({
 
 // PDF Document Component
 const AmortizationPDF = ({ loanAmount, interestRate, numMonths, monthlyPayment, totalCost, schedule }) => {
+  const formatCurrency = (value) => {
+    const n = Number(value || 0);
+    return `$${n.toFixed(2)}`;
+  };
+  const formatNumber = (value) => {
+    const n = Number(value || 0);
+    return `${n.toFixed(2)}`;
+  };
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -103,7 +104,7 @@ const AmortizationPDF = ({ loanAmount, interestRate, numMonths, monthlyPayment, 
         <View style={styles.summaryContainer}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Loan Amount:</Text>
-            <Text style={styles.summaryValue}>${parseFloat(loanAmount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</Text>
+            <Text style={styles.summaryValue}>{formatCurrency(loanAmount)}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Interest Rate:</Text>
@@ -115,11 +116,11 @@ const AmortizationPDF = ({ loanAmount, interestRate, numMonths, monthlyPayment, 
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Monthly Payment:</Text>
-            <Text style={styles.summaryValue}>${parseFloat(monthlyPayment).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</Text>
+            <Text style={styles.summaryValue}>{formatCurrency(monthlyPayment)}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Total Cost:</Text>
-            <Text style={styles.summaryValue}>${parseFloat(totalCost).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</Text>
+            <Text style={styles.summaryValue}>{formatCurrency(totalCost)}</Text>
           </View>
         </View>
 
@@ -138,10 +139,10 @@ const AmortizationPDF = ({ loanAmount, interestRate, numMonths, monthlyPayment, 
           <View key={index} style={[styles.tableRow, index % 2 === 0 ? { backgroundColor: '#F9FAFB' } : {}]}>
             <Text style={styles.col10}>{entry.count}</Text>
             <Text style={styles.col15}>{entry.month}</Text>
-            <Text style={styles.col20}>${parseFloat(entry.payment).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</Text>
-            <Text style={styles.col20}>${parseFloat(entry.principalPaid).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</Text>
-            <Text style={styles.col20}>${parseFloat(entry.interestPaid).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</Text>
-            <Text style={styles.col15}>${parseFloat(entry.remainingBalance).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</Text>
+            <Text style={styles.col20}>{formatCurrency(entry.payment)}</Text>
+            <Text style={styles.col20}>{formatCurrency(entry.principalPaid)}</Text>
+            <Text style={styles.col20}>{formatCurrency(entry.interestPaid)}</Text>
+            <Text style={styles.col15}>{formatCurrency(entry.remainingBalance)}</Text>
           </View>
         ))}
 
