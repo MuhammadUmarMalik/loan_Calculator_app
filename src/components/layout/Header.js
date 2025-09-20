@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Bars3Icon } from '@heroicons/react/24/outline';
-import { useNavigate } from 'react-router-dom';
+ 
 
 /**
  * Header component with responsive design and user authentication
@@ -8,17 +8,7 @@ import { useNavigate } from 'react-router-dom';
  * @param {Function} props.toggleSidebar - Function to toggle sidebar visibility
  */
 const Header = ({ toggleSidebar }) => {
-  const [showSettings, setShowSettings] = useState(false);
-  const navigate = useNavigate();
   
-  const toggleSettings = () => {
-    setShowSettings(!showSettings);
-  };
-  
-  const handleSettingsNavigation = (path) => {
-    setShowSettings(false);
-    navigate(path);
-  };
 
   return (
     <header className={`sticky top-0 z-30 py-3 px-4 sm:px-6 shadow-md border-b transition-colors duration-300 bg-white text-gray-800 border-gray-200`}>
@@ -35,7 +25,7 @@ const Header = ({ toggleSidebar }) => {
         {/* App title on small screens (mobile) */}
         <div className="lg:hidden flex items-center">
           <h1 className={`text-lg font-bold text-primary`}>
-            Loan Calculator
+            Loan Master
           </h1>
         </div>
         
