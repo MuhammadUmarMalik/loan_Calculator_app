@@ -10,7 +10,7 @@ import SkipLink from '../accessibility/SkipLink';
  * Main layout component with responsive design, theme features, and accessibility
  */
 const MainLayoutContent = () => {
-  useAuth(); // Using the auth context
+  useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [theme, setTheme] = useState('light');
   const [loading, setLoading] = useState(true);

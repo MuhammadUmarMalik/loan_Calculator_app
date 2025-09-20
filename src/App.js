@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
 import MainLayout from "./components/layout/MainLayout";
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 
@@ -9,8 +8,6 @@ import Dashboard from "./pages/Dashboard";
 import Calculator from "./pages/Calculator";
 import Schedule from "./pages/Schedule";
 import Reports from "./pages/Reports";
-import Profile from "./pages/Profile";
-import Account from "./pages/Account";
 import Accessibility from "./pages/Accessibility";
 
 // Import SEO component
@@ -285,21 +282,16 @@ function App() {
           <meta name="theme-color" content="#1A73E8" />
         </Helmet>
         <DynamicSEO loanType={loanType} />
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<Dashboard {...pageProps} />} />
-              <Route path="calculator" element={<Calculator {...pageProps} />} />
-              <Route path="schedule" element={<Schedule {...pageProps} />} />
-              <Route path="reports" element={<Reports {...pageProps} />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="account" element={<Account />} />
-              <Route path="settings" element={<Profile />} />
-              <Route path="accessibility" element={<Accessibility />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
-        </AuthProvider>
+        <Routes>
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Dashboard {...pageProps} />} />
+            <Route path="calculator" element={<Calculator {...pageProps} />} />
+            <Route path="schedule" element={<Schedule {...pageProps} />} />
+            <Route path="reports" element={<Reports {...pageProps} />} />
+            <Route path="accessibility" element={<Accessibility />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
       </HelmetProvider>
     </Router>
   );

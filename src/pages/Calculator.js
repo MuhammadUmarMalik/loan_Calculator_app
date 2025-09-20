@@ -30,6 +30,7 @@ const Calculator = ({
   generateExtraAmortizationSchedule,
   totalAmount,
   startDate,
+  setStartDate,
   // Loan-specific props
   downPayment,
   setDownPayment,
@@ -131,6 +132,8 @@ const Calculator = ({
             clearAllFields={clearAllFields}
             generateAmortizationSchedule={generateAmortizationSchedule}
             generateExtraAmortizationSchedule={generateExtraAmortizationSchedule}
+          startDate={startDate}
+          setStartDate={setStartDate}
             downPayment={downPayment}
             setDownPayment={setDownPayment}
             tradeInValue={tradeInValue}

@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { 
   ArrowTrendingDownIcon, 
   CalendarIcon, 
@@ -79,42 +77,8 @@ const LoanInputForm = ({
     { value: "house", label: "Home Loan", icon: HomeIcon }
   ];
   
-  // Debounced validation
-  const debouncedValidate = useCallback((field, value) => {
-    let validationFunction;
-    
-    switch (field) {
-      case 'loanAmount':
-        validationFunction = validateLoanAmount;
-        break;
-      case 'numMonths':
-        validationFunction = validateNumMonths;
-        break;
-      case 'annualInterestRate':
-        validationFunction = validateInterestRate;
-        break;
-      case 'downPayment':
-        validationFunction = validateDownPayment;
-        break;
-      case 'tradeInValue':
-        validationFunction = validateTradeInValue;
-        break;
-      case 'propertyTax':
-        validationFunction = validatePropertyTax;
-        break;
-      case 'homeInsurance':
-        validationFunction = validateHomeInsurance;
-        break;
-      case 'deviceModel':
-        validationFunction = validateDeviceModel;
-        break;
-      default:
-        return;
-    }
-    
-    const errorMessage = validationFunction(value);
-    setFormErrors(prev => ({...prev, [field]: errorMessage}));
-  }, [validateDeviceModel, validateDownPayment, validateLoanAmount, validateNumMonths, validateInterestRate, validateTradeInValue, validatePropertyTax, validateHomeInsurance]);
+  // Debounced validation (defined after validators below to avoid TDZ in some bundlers)
+  let debouncedValidate = null; // will be assigned after validator declarations
   
   // Common term presets
   const termPresets = [
@@ -129,72 +93,92 @@ const LoanInputForm = ({
   ];
   
   // Validation functions
-  const validateLoanAmount = useCallback((value) => {
+  function validateLoanAmount(value) {
     if (!value) return "Loan amount is required";
-    
     const amount = parseFloat(value);
     if (isNaN(amount) || amount <= 0) return "Enter a valid positive number";
     if (amount > 100000000) return "Amount exceeds maximum (100M)";
     return "";
-  }, []);
+  }
   
-  const validateNumMonths = useCallback((value) => {
+  function validateNumMonths(value) {
     if (!value) return "Loan term is required";
-    
     const months = parseInt(value);
     if (isNaN(months) || months <= 0) return "Enter valid number of months";
     if (months > 600) return "Term cannot exceed 600 months (50 years)";
     return "";
-  }, []);
+  }
   
-  const validateInterestRate = useCallback((value) => {
+  function validateInterestRate(value) {
     if (!value) return "Interest rate is required";
-    
     const rate = parseFloat(value);
     if (isNaN(rate) || rate < 0) return "Enter valid interest rate";
     if (rate > 100) return "Rate cannot exceed 100%";
     return "";
-  }, []);
+  }
   
   // Loan-specific validation functions
-  const validateDownPayment = useCallback((value) => {
-    if (!value) return "";  // Down payment is optional
-    
+  function validateDownPayment(value) {
+    if (!value) return "";
     const amount = parseFloat(value);
     if (isNaN(amount) || amount < 0) return "Enter a valid positive number";
     if (loanAmount && amount > parseFloat(loanAmount)) return "Down payment cannot exceed loan amount";
     return "";
-  }, [loanAmount]);
+  }
   
-  const validateTradeInValue = useCallback((value) => {
-    if (!value) return "";  // Trade-in value is optional
-    
+  function validateTradeInValue(value) {
+    if (!value) return "";
     const amount = parseFloat(value);
     if (isNaN(amount) || amount < 0) return "Enter a valid positive number";
     return "";
-  }, []);
+  }
   
-  const validatePropertyTax = useCallback((value) => {
-    if (!value) return "";  // Property tax is optional
-    
+  function validatePropertyTax(value) {
+    if (!value) return "";
     const amount = parseFloat(value);
     if (isNaN(amount) || amount < 0) return "Enter a valid positive number";
     if (amount > 10) return "Property tax rate seems too high";
     return "";
-  }, []);
+  }
   
-  const validateHomeInsurance = useCallback((value) => {
-    if (!value) return "";  // Home insurance is optional
-    
+  function validateHomeInsurance(value) {
+    if (!value) return "";
     const amount = parseFloat(value);
     if (isNaN(amount) || amount < 0) return "Enter a valid positive number";
     return "";
-  }, []);
+  }
   
-  const validateDeviceModel = useCallback((value) => {
+  function validateDeviceModel(value) {
     if (loanType === "mobile" && !value) return "Device model is required";
     return "";
-  }, [loanType]);
+  }
+
+  // Now that validators are declared, define debouncedValidate safely
+  debouncedValidate = useCallback((field, value) => {
+    let validationFunction;
+    switch (field) {
+      case 'loanAmount':
+        validationFunction = validateLoanAmount; break;
+      case 'numMonths':
+        validationFunction = validateNumMonths; break;
+      case 'annualInterestRate':
+        validationFunction = validateInterestRate; break;
+      case 'downPayment':
+        validationFunction = validateDownPayment; break;
+      case 'tradeInValue':
+        validationFunction = validateTradeInValue; break;
+      case 'propertyTax':
+        validationFunction = validatePropertyTax; break;
+      case 'homeInsurance':
+        validationFunction = validateHomeInsurance; break;
+      case 'deviceModel':
+        validationFunction = validateDeviceModel; break;
+      default:
+        return;
+    }
+    const errorMessage = validationFunction(value);
+    setFormErrors(prev => ({ ...prev, [field]: errorMessage }));
+  }, []);
   
   // Effect to validate fields when touched
   useEffect(() => {
@@ -692,15 +676,18 @@ const LoanInputForm = ({
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 </div>
-                <DatePicker
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  dateFormat="MM/dd/yyyy"
+                <input
+                  id="startDate"
+                  type="date"
+                  value={(startDate ? new Date(startDate) : null) ? new Date(startDate).toISOString().slice(0, 10) : ''}
+                  onChange={(e) => {
+                    const nextDate = e.target.value ? new Date(e.target.value) : null;
+                    if (typeof setStartDate === 'function') {
+                      setStartDate(nextDate);
+                    }
+                  }}
                   className="pl-8 sm:pl-10 input-field block w-full border-gray-300 focus:ring-primary focus:border-primary"
-                  placeholderText="Select start date"
-                  showMonthDropdown
-                  showYearDropdown
-                  dropdownMode="select"
+                  placeholder="Select start date"
                 />
               </div>
             </div>

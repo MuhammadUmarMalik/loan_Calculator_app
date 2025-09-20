@@ -56,6 +56,17 @@ body {
   border-color: #374151;
 }
 
+/* Improve common border/text colors in dark mode */
+.dark .border-gray-300 {
+  border-color: #4B5563;
+}
+.dark .text-gray-900 {
+  color: #F9FAFB;
+}
+.dark .text-gray-400 { /* slightly brighter for readability */
+  color: #9CA3AF;
+}
+
 .dark .bg-gray-100 {
   background-color: #374151;
 }
@@ -80,6 +91,11 @@ body {
   background-color: #374151;
   border-color: #4B5563;
   color: #F3F4F6;
+}
+.dark .input-field::placeholder,
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #9CA3AF;
 }
 
 .dark .bg-gray-50 {
@@ -116,6 +132,30 @@ body {
 
 .dark header.bg-white {
   background-color: #1F2937;
+}
+
+/* Buttons */
+.dark .btn-primary:hover {
+  background-color: #3b8ced; /* primary-light */
+}
+.dark .btn-success:hover {
+  background-color: #16a34a; /* slightly brighter green */
+}
+.dark .btn-danger:hover {
+  background-color: #dc2626; /* slightly brighter red */
+}
+
+/* Tables / headers */
+.dark .table-header {
+  background-color: #374151;
+}
+
+/* Links */
+.dark a {
+  color: #93C5FD;
+}
+.dark a:hover, .dark a:focus {
+  color: #BFDBFE;
 }
 
 code {

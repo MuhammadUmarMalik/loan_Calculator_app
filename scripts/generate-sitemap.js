@@ -31,10 +31,7 @@ async function generateSitemap() {
     { url: '/calculator/auto-loan-guide', changefreq: 'monthly', priority: '0.7' },
     { url: '/calculator/home-loan-resources', changefreq: 'monthly', priority: '0.7' },
     
-    // User account pages
-    { url: '/profile', changefreq: 'monthly', priority: '0.5' },
-    { url: '/account', changefreq: 'monthly', priority: '0.5' },
-    { url: '/settings', changefreq: 'monthly', priority: '0.5' },
+    // User account pages removed
     
     // Help pages
     { url: '/faq', changefreq: 'monthly', priority: '0.6' },
