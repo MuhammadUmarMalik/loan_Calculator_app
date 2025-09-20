@@ -17,7 +17,7 @@ const DynamicSEO = ({ loanType }) => {
     const baseUrl = "https://example.com";
     
     // Default SEO values
-    let title = "Loan Calculator Pro | Free Mortgage, Auto & Home Loan Calculator";
+    let title = "LoanMaster | Smart Loan Calculator";
     let description = "Free online loan calculator for mortgage, auto, and home loans. Compare rates, create amortization schedules, and save with our payment optimization tools.";
     let canonicalUrl = `${baseUrl}${path}`;
     let structuredData = null;
@@ -25,7 +25,7 @@ const DynamicSEO = ({ loanType }) => {
     // Page-specific SEO values
     switch(true) {
       case path === '/':
-        title = "Loan Calculator Pro | Free Online Financial Calculator Tool";
+        title = "LoanMaster | Free Online Financial Calculator Tool";
         description = "Calculate mortgage, auto, home, and personal loan payments with our free calculator. Get detailed amortization schedules and save money with optimized payment plans.";
         break;
         
@@ -66,7 +66,7 @@ const DynamicSEO = ({ loanType }) => {
         break;
         
       case path === '/accessibility':
-        title = "Accessibility Statement | Loan Calculator Pro";
+        title = "Accessibility Statement | LoanMaster";
         description = "Learn about our commitment to accessibility and how we ensure Loan Calculator Pro is usable by everyone, including those with disabilities.";
         break;
         

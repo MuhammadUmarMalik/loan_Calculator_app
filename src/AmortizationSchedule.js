@@ -1,5 +1,5 @@
 import React from "react";
-import { Document, Page, Text, View, StyleSheet, PDFDownloadLink, Link } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from "@react-pdf/renderer";
 
 // Styles for the PDF document
 const styles = StyleSheet.create({
@@ -81,20 +81,7 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: '#666666',
   },
-  contact: {
-    position: 'absolute',
-    bottom: 12,
-    left: 30,
-    right: 30,
-    textAlign: 'center',
-    fontSize: 9,
-    color: '#1A73E8'
-  },
-  link: {
-    color: '#1A73E8',
-    textDecoration: 'none',
-    marginHorizontal: 6
-  }
+  
 });
 
 // PDF Document Component
@@ -174,18 +161,7 @@ const AmortizationPDF = ({ loanAmount, interestRate, numMonths, monthlyPayment, 
           `${pageNumber} / ${totalPages}`
         )} fixed />
 
-        {/* Contact links */}
-        <View style={styles.contact} fixed>
-          <Text>
-            <Link src="https://www.umarmalik-dev.com/" style={styles.link}>Website</Link>
-            |
-            <Link src="https://www.linkedin.com/in/umarmalik-dev/" style={styles.link}>LinkedIn</Link>
-            |
-            <Link src="https://github.com/muhammadumarmalik" style={styles.link}>GitHub</Link>
-            |
-            <Link src="mailto:umarmalik.cs711@gmail.com" style={styles.link}>umarmalik.cs711@gmail.com</Link>
-          </Text>
-        </View>
+        
       </Page>
     </Document>
   );
