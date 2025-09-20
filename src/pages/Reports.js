@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { jsPDF } from 'jspdf';
 import LoanPieChart from '../components/charts/LoanPieChart';
 import LoanBalanceChart from '../components/charts/LoanBalanceChart';
 import { DocumentTextIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
@@ -48,6 +49,168 @@ const Reports = ({
   
   const interestSavings = calculateInterestSavings();
   const timeSavings = calculateTimeSavings();
+  
+  // Download handlers for summary and comparison PDFs
+  const downloadLoanSummaryPDF = () => {
+    if (!loanAmount || !annualInterestRate || !numMonths || !monthlyPayment) return;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    const primary = [26, 115, 232]; // #1A73E8
+    const gray600 = [75, 85, 99];
+    const gray300 = [209, 213, 219];
+    const text = [17, 24, 39];
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    const formatCurrency = (n) => `$${parseFloat(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    // Header bar
+    doc.setFillColor(primary[0], primary[1], primary[2]);
+    doc.rect(0, 0, pageWidth, 22, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text('Loan Summary Report', pageWidth / 2, 14, { align: 'center' });
+
+    // Meta line
+    doc.setFontSize(10);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, pageWidth / 2, 20, { align: 'center' });
+
+    // Card helper
+    const drawCard = (x, y, w, h, title, rows) => {
+      doc.setDrawColor(gray300[0], gray300[1], gray300[2]);
+      doc.setFillColor(255, 255, 255);
+      doc.roundedRect(x, y, w, h, 2, 2, 'FD');
+      doc.setTextColor(text[0], text[1], text[2]);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text(title, x + 6, y + 8);
+      doc.setDrawColor(gray300[0], gray300[1], gray300[2]);
+      doc.line(x + 6, y + 10, x + w - 6, y + 10);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      let cy = y + 18;
+      rows.forEach(([label, value]) => {
+        doc.setTextColor(gray600[0], gray600[1], gray600[2]);
+        doc.text(label, x + 6, cy);
+        doc.setTextColor(text[0], text[1], text[2]);
+        doc.setFont('helvetica', 'bold');
+        doc.text(value, x + w - 6, cy, { align: 'right' });
+        doc.setFont('helvetica', 'normal');
+        cy += 8;
+      });
+    };
+
+    // Summary card
+    const margin = 15;
+    drawCard(
+      margin,
+      30,
+      pageWidth - margin * 2,
+      60,
+      'Loan Details',
+      [
+        ['Loan Amount', formatCurrency(loanAmount)],
+        ['Interest Rate', `${annualInterestRate}% APR`],
+        ['Term', `${numMonths} months`],
+        ['Monthly Payment', formatCurrency(monthlyPayment)],
+        ['Total Payment', formatCurrency(totalAmount)],
+        ['Total Interest', formatCurrency(parseFloat(totalAmount || 0) - parseFloat(loanAmount || 0))],
+      ]
+    );
+
+    // Footer note
+    doc.setFontSize(9);
+    doc.setTextColor(gray600[0], gray600[1], gray600[2]);
+    doc.text('This report is for informational purposes only.', pageWidth / 2, 295, { align: 'center' });
+
+    doc.save('loan-summary.pdf');
+  };
+
+  const downloadComparisonPDF = () => {
+    if (!amortizationSchedule || amortizationSchedule.length === 0) return;
+    if (!extraAmortizationSchedule || extraAmortizationSchedule.length === 0) return;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    const primary = [26, 115, 232];
+    const gray600 = [75, 85, 99];
+    const gray300 = [209, 213, 219];
+    const text = [17, 24, 39];
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    const currency = (n) => `$${parseFloat(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    // Header bar
+    doc.setFillColor(primary[0], primary[1], primary[2]);
+    doc.rect(0, 0, pageWidth, 22, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text('Loan Comparison Report', pageWidth / 2, 14, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, pageWidth / 2, 20, { align: 'center' });
+
+    // Cards side-by-side
+    const margin = 12;
+    const cardW = (pageWidth - margin * 3) / 2;
+    const cardH = 60;
+
+    const totalInterestRegular = amortizationSchedule.reduce((t, i) => t + parseFloat(i.interestPaid), 0);
+    const totalInterestExtra = extraAmortizationSchedule.reduce((t, i) => t + parseFloat(i.interestPaid), 0);
+
+    const drawCard = (x, title, rows) => {
+      doc.setDrawColor(gray300[0], gray300[1], gray300[2]);
+      doc.setFillColor(255, 255, 255);
+      doc.roundedRect(x, 30, cardW, cardH, 2, 2, 'FD');
+      doc.setTextColor(text[0], text[1], text[2]);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text(title, x + 6, 38);
+      doc.setDrawColor(gray300[0], gray300[1], gray300[2]);
+      doc.line(x + 6, 40, x + cardW - 6, 40);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      let cy = 48;
+      rows.forEach(([label, value]) => {
+        doc.setTextColor(gray600[0], gray600[1], gray600[2]);
+        doc.text(label, x + 6, cy);
+        doc.setTextColor(text[0], text[1], text[2]);
+        doc.setFont('helvetica', 'bold');
+        doc.text(value, x + cardW - 6, cy, { align: 'right' });
+        doc.setFont('helvetica', 'normal');
+        cy += 8;
+      });
+    };
+
+    drawCard(margin, 'Regular Payments', [
+      ['Number of Payments', `${amortizationSchedule.length}`],
+      ['Total Interest', currency(totalInterestRegular)],
+      ['Avg Payment', currency(amortizationSchedule.reduce((t, i) => t + parseFloat(i.payment), 0) / amortizationSchedule.length)],
+    ]);
+
+    drawCard(margin * 2 + cardW, 'With Extra Payments', [
+      ['Number of Payments', `${extraAmortizationSchedule.length}`],
+      ['Total Interest', currency(totalInterestExtra)],
+      ['Avg Payment', currency(extraAmortizationSchedule.reduce((t, i) => t + parseFloat(i.payment), 0) / extraAmortizationSchedule.length)],
+    ]);
+
+    // Savings strip
+    const stripY = 30 + cardH + 12;
+    doc.setDrawColor(primary[0], primary[1], primary[2]);
+    doc.setFillColor(242, 248, 255);
+    doc.roundedRect(margin, stripY, pageWidth - margin * 2, 18, 2, 2, 'FD');
+    doc.setFontSize(12);
+    doc.setTextColor(primary[0], primary[1], primary[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Interest Savings: ${currency(interestSavings)}    •    Time Savings: ${Math.floor(timeSavings / 12)} years, ${timeSavings % 12} months`, pageWidth / 2, stripY + 12, { align: 'center' });
+
+    // Footer
+    doc.setFontSize(9);
+    doc.setTextColor(gray600[0], gray600[1], gray600[2]);
+    doc.text('This report is for informational purposes only.', pageWidth / 2, 295, { align: 'center' });
+
+    doc.save('loan-comparison.pdf');
+  };
   
   return (
     <div className="space-y-6">
@@ -180,7 +343,12 @@ const Reports = ({
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold text-primary mb-4">Download Reports</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <button className="border border-gray-200 rounded-lg p-4 flex items-center hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={downloadLoanSummaryPDF}
+            disabled={!loanAmount || !annualInterestRate || !numMonths || !monthlyPayment}
+            className={`border border-gray-200 rounded-lg p-4 flex items-center transition-colors ${(!loanAmount || !annualInterestRate || !numMonths || !monthlyPayment) ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-50'}`}
+            aria-disabled={!loanAmount || !annualInterestRate || !numMonths || !monthlyPayment}
+          >
             <DocumentTextIcon className="h-8 w-8 text-primary mr-3" />
             <div>
               <h3 className="text-sm font-medium">Loan Summary Report</h3>
@@ -212,7 +380,12 @@ const Reports = ({
               <ArrowDownTrayIcon className="h-5 w-5 text-gray-300 ml-auto" />
             )}
           </div>
-          <button className="border border-gray-200 rounded-lg p-4 flex items-center hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={downloadComparisonPDF}
+            disabled={!extraAmortizationSchedule || extraAmortizationSchedule.length === 0 || !amortizationSchedule || amortizationSchedule.length === 0}
+            className={`border border-gray-200 rounded-lg p-4 flex items-center transition-colors ${(!extraAmortizationSchedule || extraAmortizationSchedule.length === 0 || !amortizationSchedule || amortizationSchedule.length === 0) ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-50'}`}
+            aria-disabled={!extraAmortizationSchedule || extraAmortizationSchedule.length === 0 || !amortizationSchedule || amortizationSchedule.length === 0}
+          >
             <DocumentTextIcon className="h-8 w-8 text-primary mr-3" />
             <div>
               <h3 className="text-sm font-medium">Comparison Report</h3>
