@@ -90,10 +90,6 @@ const AmortizationPDF = ({ loanAmount, interestRate, numMonths, monthlyPayment, 
     const n = Number(value || 0);
     return `$${n.toFixed(2)}`;
   };
-  const formatNumber = (value) => {
-    const n = Number(value || 0);
-    return `${n.toFixed(2)}`;
-  };
   return (
     <Document>
       <Page size="A4" style={styles.page}>
