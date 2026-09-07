@@ -120,13 +120,13 @@ const LoanInputForm = ({
   }
   
   // Loan-specific validation functions
-  function validateDownPayment(value) {
+  const validateDownPayment = useCallback((value) => {
     if (!value) return "";
     const amount = parseFloat(value);
     if (isNaN(amount) || amount < 0) return "Enter a valid positive number";
     if (loanAmount && amount > parseFloat(loanAmount)) return "Down payment cannot exceed loan amount";
     return "";
-  }
+  }, [loanAmount]);
   
   function validateTradeInValue(value) {
     if (!value) return "";
@@ -150,10 +150,10 @@ const LoanInputForm = ({
     return "";
   }
   
-  function validateDeviceModel(value) {
+  const validateDeviceModel = useCallback((value) => {
     if (loanType === "mobile" && !value) return "Device model is required";
     return "";
-  }
+  }, [loanType]);
 
   // Now that validators are declared, define debouncedValidate safely
   debouncedValidate = useCallback((field, value) => {
@@ -180,7 +180,7 @@ const LoanInputForm = ({
     }
     const errorMessage = validationFunction(value);
     setFormErrors(prev => ({ ...prev, [field]: errorMessage }));
-  }, []);
+  }, [validateDeviceModel, validateDownPayment]);
   
   // Effect to validate fields when touched
   useEffect(() => {
